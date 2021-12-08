@@ -24,29 +24,53 @@
 ##
 ###############################################################################
 
+name: Export Godot project and publish on GitHub
 on:
-  workflow_dispatch: # push:
+  workflow_dispatch:
     branches:
       - master
+      - dev-example
     paths:
       - 'stigmee/**'
 
 jobs:
   export_game:
+    # Always use ubuntu-latest for this action
     runs-on: ubuntu-latest
-    name: Export stigmee
+    name: Exporting Stigmee
     env: # FIXME: The `add-path` command is disabled. Please upgrade to using Environment Files or opt into unsecur
        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     steps:
-    - name: checkout
-      uses: actions/checkout@v2.0.0
-    - name: export
-      uses: firebelley/godot-export@v1.1.0
+    - name: checkouting Stigmee
+      uses: actions/checkout@v2.3.1
+
+    - name: Installing system packages for compiling Godot-cpp
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential scons pkg-config libx11-dev libxcursor-dev libxinerama-dev \
+             libgl1-mesa-dev libglu-dev libasound2-dev libpulse-dev libudev-dev libxi-dev libxrandr-dev yasm
+
+    - name: Installing Godot modules
+      uses: actions/checkout@v2.3.1
+      with:
+        repository: stigmee/godot-modules
+        ref: dev-lecrapouille
+        token: ${{ secrets.ACCESS_TOKEN }}
+        path: godot-modules
+        
+    - name: Compiling Godot modules
+      run: cd $GITHUB_WORKSPACE/godot-modules && ./build.sh
+      
+    - name: Linking generated lib, assets to make Godot find them
+      run: ln -s $GITHUB_WORKSPACE/godot-modules/build $GITHUB_WORKSPACE/stigmee/build
+
+    - name: exporting Stigmee
+      uses: firebelley/godot-export@v3.0.0
       with:
         base_version: 0.1.0
-        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.2/Godot_v3.2-stable_linux_headless.64.zip
-        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.2/Godot_v3.2-stable_export_templates.tpz
-        godot_template_version: 3.2.stable
+        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.4/Godot_v3.4-stable_linux_headless.64.zip
+        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.4/Godot_v3.4-stable_export_templates.tpz
         relative_project_path: ./stigmee
+        archive_export_output: true
       env:
         GITHUB_TOKEN: ${{ secrets.EXPORT_GITHUB_TOKEN }}
