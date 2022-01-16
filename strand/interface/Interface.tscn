@@ -1,0 +1,87 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://strand/interface/BrowserController.gd" type="Script" id=3]
+
+[node name="Interface" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -1.7818
+margin_right = -1.78174
+mouse_filter = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Browser" type="VBoxContainer" parent="."]
+visible = false
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -667.0
+margin_top = -1047.0
+margin_right = 684.0
+margin_bottom = -2.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BrowserControllerClose" type="HBoxContainer" parent="Browser"]
+margin_right = 1351.0
+margin_bottom = 20.0
+alignment = 2
+script = ExtResource( 3 )
+
+[node name="Close" type="Button" parent="Browser/BrowserControllerClose"]
+margin_left = 1331.0
+margin_right = 1351.0
+margin_bottom = 20.0
+text = "X"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BrowserController" type="HBoxContainer" parent="Browser"]
+margin_top = 24.0
+margin_right = 1351.0
+margin_bottom = 44.0
+alignment = 2
+script = ExtResource( 3 )
+
+[node name="Prev" type="Button" parent="Browser/BrowserController"]
+margin_left = 1307.0
+margin_right = 1327.0
+margin_bottom = 20.0
+text = "<"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Next" type="Button" parent="Browser/BrowserController"]
+margin_left = 1331.0
+margin_right = 1351.0
+margin_bottom = 20.0
+text = ">"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="Browser"]
+margin_top = 48.0
+margin_right = 1351.0
+margin_bottom = 1045.0
+size_flags_vertical = 3
+
+[node name="Texture" type="TextureRect" parent="Browser/Panel"]
+margin_right = 1347.0
+margin_bottom = 1006.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="pressed" from="Browser/BrowserControllerClose/Close" to="Browser/BrowserControllerClose" method="_on_Close_pressed"]
+[connection signal="pressed" from="Browser/BrowserController/Prev" to="Browser/BrowserController" method="_on_Prev_pressed"]
+[connection signal="pressed" from="Browser/BrowserController/Next" to="Browser/BrowserController" method="_on_Next_pressed"]
+[connection signal="gui_input" from="Browser/Panel/Texture" to="Browser/BrowserController" method="_on_Texture_gui_input"]
