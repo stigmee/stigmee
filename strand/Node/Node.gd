@@ -28,11 +28,17 @@ var icon
 var offset
 var FLOATING_INVERSE_AMPLITUDE = 15 # high = low amplitude
 
+var hover_material
+
+var hovered = false
+
 func _ready():
 	label = find_node("Label")
 	icon = find_node("Icon")
 	init_floating_sphere_movement()
-	
+
+	hover_material = preload("res://strand/Node/node_hover_material.tres")
+
 func init_floating_sphere_movement():
 	var rng = RandomNumberGenerator.new()
 	rng.randomize()
@@ -54,11 +60,23 @@ func floating_sphere_movement():
 
 func _process(delta):
 	floating_sphere_movement()
+	var dynamic_font_size = max(30 * (Global.zoom / 10), 15)
+	label.get_font("font").set_size(dynamic_font_size)
+	icon.visible = Global.edit_mode and siteName == null
 
-func set_data(id, siteName):
+func set_data(id, _siteName):
 	node_id = id
+	siteName = _siteName
 	$Sphere.visible = siteName != null
-	icon.visible = siteName == null
 	if siteName:
-		siteName = siteName
 		label.text = siteName
+
+func _on_Area_mouse_entered():
+	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
+	$Sphere.radius = 0.35
+	$Sphere.material_override = hover_material
+
+func _on_Area_mouse_exited():
+	Input.set_default_cursor_shape(0)
+	$Sphere.radius = 0.25
+	$Sphere.material_override = null

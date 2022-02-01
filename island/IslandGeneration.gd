@@ -166,6 +166,7 @@ func build_island():
 
 func _ready():
 	build_island()
+	get_parent().get_node("OrbitCamera").set_zoom(1)
 
 func _process(delta):
 	get_input_keyboard(delta)

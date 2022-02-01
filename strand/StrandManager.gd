@@ -20,15 +20,16 @@
 
 extends Spatial
 
-const NODE = preload("res://strand/Node.tscn")
+const NODE = preload("res://strand/Node/Node.tscn")
 export var links = []
 var nodes = []
+
+var SAVE_PATH
 
 var physicalNodes = []
 var nodes_data = {}
 
 var cef = null
-
 var mouse_pressed = false
 
 var current_node_id = 0
@@ -44,7 +45,7 @@ func init_events():
 	save_link_btn.connect("save_link", self, "save_link")
 
 func home():
-	load_link("https://google.com")
+	load_link(Global.DEFAULT_SEARCH_ENGINE_URL)
 
 func save_link(name):
 	var current_url = cef.get_url()
@@ -98,7 +99,8 @@ func _unhandled_input(event):
 			get_tree().change_scene("res://island/Island.tscn")
 
 func init_browser():
-	cef = GDCef.new()
+	if not Global.cef:
+		cef = GDCef.new()
 	var browser = get_node("Interface")
 	browser.visible = false
 	Global.enable_orbit_camera = true
@@ -107,6 +109,8 @@ func _ready():
 	Global.strand_id = Global.strand_id
 	if not Global.strand_id:
 		Global.strand_id = 1
+	Global.edit_mode = false
+	SAVE_PATH = Global.STRAND_SAVE % Global.strand_id
 	place_nodes($IslandGeneration.get_river())
 	init_browser()
 	init_events()
@@ -141,78 +145,44 @@ func place_nodes(river_nodes):
 		side = -1 if side == 1 else 1
 
 func assign_link_to_node(url, id, name):
-	var data = get_data_from_url(url)
+	var data = {}
+	data.url = url
 	data.custom_name = name
 	if !data.has("custom_name"):
-		data.custom_name = data.site_name
+		data.custom_name = url
 	physicalNodes[id].set_data(id, data.custom_name)
 	nodes_data[str(id)] = data
 	save_links()
 
 func save_links():
 	var save_game = File.new()
-	save_game.open("user://savelinks"+str(Global.strand_id)+".save", File.WRITE)
+	save_game.open(SAVE_PATH, File.WRITE)
 	save_game.store_line(to_json(nodes_data))
 	save_game.close()
-	
+
 func load_links():
 	var save_game = File.new()
-	if not save_game.file_exists("user://savelinks"+str(Global.strand_id)+".save"):
-		return {}
-	save_game.open("user://savelinks"+str(Global.strand_id)+".save", File.READ)
+	if not save_game.file_exists(SAVE_PATH):
+		return
+	save_game.open(SAVE_PATH, File.READ)
 	nodes_data = parse_json(save_game.get_line())
 	for key in nodes_data:
 		var data = nodes_data[key]
-		if !data.has("custom_name"):
-			data.custom_name = data.site_name
 		physicalNodes[int(key)].set_data(int(key), data.custom_name)
 	save_game.close()
 
 func load_node(node_id):
 	current_node_id = node_id
-	if not nodes_data.has(str(node_id)):
-		load_link("https://google.com")
-		return
-	var data = nodes_data[str(node_id)]
-	load_link(data.url)
-
-func get_data_from_url(url):
-	var data = {}
-	data.url = url
-	var size = 4
-	var symbolPos = url.find(".com")
-	if symbolPos == -1:
-		symbolPos = url.find(".org")
-		if symbolPos == -1:
-			symbolPos = url.find(".fr")
-			if symbolPos != -1:
-				size = 3
-			if symbolPos == -1:
-				symbolPos = url.find(".net")
-				if symbolPos == -1:
-					symbolPos = url.find(".ca")
-					if symbolPos != -1:
-						size = 3
-
-	if symbolPos >= 0:
-		var end = symbolPos
-		var begin = end - 1
-		while url[begin] != ".":
-			begin -= 1
-		begin += 1
-		data.site_name = url.substr(begin, end - begin)
-		data.domain_name = url.substr(begin, end - begin + size)
-	else:
-		data.site_name = url.to_lower()
-		data.domain_name = url.to_lower()
-	return data
+	var url = Global.DEFAULT_SEARCH_ENGINE_URL
+	if nodes_data.has(str(node_id)):
+		url = nodes_data[str(node_id)].url
+	load_link(url)
 
 func load_link(link):
 	cef.load_url(link)
 	var browser_size = $Interface/Browser/Panel.get_size()
 	$Interface/Browser/Panel/Texture.set_size(browser_size)
 	cef.reshape(browser_size.x, browser_size.y)
-	
 	$Interface.visible = true
 	Global.enable_orbit_camera = false
 
@@ -231,3 +201,6 @@ func _process(delta):
 		return
 	cef.do_message_loop_work()
 	$Interface/Browser/Panel/Texture.texture = cef.get_texture()
+
+func _on_CheckButton_pressed():
+	Global.edit_mode = find_node("CheckButton").is_pressed()

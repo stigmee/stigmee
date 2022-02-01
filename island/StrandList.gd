@@ -30,12 +30,11 @@ func _ready():
 	var id = 1
 	for child in children:
 		child.set_id(id)
-		if not strands_data.has(id):
-			strands_data[id] = { name = "Strand " + str(id) }
-		child.set_name(strands_data[id].name)
+		if not strands_data.has(str(id)):
+			strands_data[str(id)] = { name = "Strand " + str(id) }
+		child.set_name(strands_data[str(id)].name)
 		child.connect("rename_strand", self, "open_rename_strand")
 		id += 1
-	save_strands()
 
 func open_rename_strand(id):
 	get_parent().get_node("RenameLinkPanel").visible = true
@@ -43,30 +42,24 @@ func open_rename_strand(id):
 
 func save_strands():
 	var save_game = File.new()
-	save_game.open("user://savestrands.save", File.WRITE)
+	save_game.open(Global.ISLAND_SAVE, File.WRITE)
 	save_game.store_line(to_json(strands_data))
 	save_game.close()
 
 func load_strands():
 	var save_strands = File.new()
-	if not save_strands.file_exists("user://savestrands.save"):
-		return {}
-	save_strands.open("user://savestrands.save", File.READ)
+	if not save_strands.file_exists(Global.ISLAND_SAVE):
+		return
+	save_strands.open(Global.ISLAND_SAVE, File.READ)
 	strands_data = parse_json(save_strands.get_line())
-	for key in strands_data:
-		var data = strands_data[key]
-		key = int(key)
-		if !data.has("name"):
-			data.custom_name = "Strand " + str(key)
-		get_child(key - 1).set_id(key)
-		get_child(key - 1).set_name(data.name)
 	save_strands.close()
-
 
 func _on_RenameBtn_pressed():
 	var name = get_parent().get_node("RenameLinkPanel/VBoxContainer/HBoxContainer/NewNameInput").text
 	if !name or name.length() == 0:
 		return
-	strands_data[current_rename_id].name = name
+	strands_data[str(current_rename_id)].name = name
+	save_strands()
 	get_child(current_rename_id - 1).set_name(name)
 	get_parent().get_node("RenameLinkPanel").visible = false
+

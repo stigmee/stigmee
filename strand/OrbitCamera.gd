@@ -31,11 +31,12 @@ var mouse_sensitivity = 0.005
 
 func _ready():
 	scale = Vector3.ONE * zoom
+	Global.zoom = zoom
 
 func _process(delta):
-	get_input_keyboard(delta)
+	input_keyboard(delta)
 
-func get_input_keyboard(delta):
+func input_keyboard(delta):
 	if not Global.enable_orbit_camera:
 		return
 	var y_rotation = 0
@@ -51,6 +52,12 @@ func get_input_keyboard(delta):
 		var t = transform.basis.y * 0.3
 		translate(t)
 
+func set_zoom(value):
+	zoom = value
+	zoom = clamp(zoom, 0.5, 10)
+	Global.zoom = zoom
+	scale = Vector3.ONE * zoom
+
 func _unhandled_input(event):
 	if not Global.enable_orbit_camera:
 		return
@@ -58,5 +65,4 @@ func _unhandled_input(event):
 		zoom -= ZOOM_SPEED
 	if event.is_action_pressed("cam_zoom_out"):
 		zoom += ZOOM_SPEED
-	zoom = clamp(zoom, 0.5, 10)
-	scale = Vector3.ONE * zoom
+	set_zoom(zoom)

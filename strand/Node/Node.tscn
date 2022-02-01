@@ -1,7 +1,8 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://strand/Node.gd" type="Script" id=1]
-[ext_resource path="res://strand/Node/NodeText.tscn" type="PackedScene" id=2]
+[ext_resource path="res://strand/Node/node_material.tres" type="Material" id=1]
+[ext_resource path="res://strand/Node/Node.gd" type="Script" id=2]
+[ext_resource path="res://strand/Node/NodeText.tscn" type="PackedScene" id=3]
 
 [sub_resource type="SphereShape" id=1]
 radius = 1.027
@@ -10,11 +11,8 @@ radius = 1.027
 flags = 4
 viewport_path = NodePath("Viewport")
 
-[sub_resource type="SpatialMaterial" id=3]
-albedo_color = Color( 0.403922, 0.784314, 0.94902, 1 )
-
 [node name="Node" type="Spatial"]
-script = ExtResource( 1 )
+script = ExtResource( 2 )
 
 [node name="Area" type="Area" parent="."]
 transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0 )
@@ -27,7 +25,7 @@ size = Vector2( 200, 200 )
 transparent_bg = true
 gui_disable_input = true
 
-[node name="NodeText" parent="Viewport" instance=ExtResource( 2 )]
+[node name="NodeText" parent="Viewport" instance=ExtResource( 3 )]
 
 [node name="Viewport3D" type="Sprite3D" parent="."]
 transform = Transform( 2.69655, 0, 0, 0, 2.69655, 0, 0, 0, 0.5, -0.00922346, 0.64373, 0.00590944 )
@@ -39,6 +37,8 @@ texture = SubResource( 2 )
 radius = 0.25
 radial_segments = 25
 rings = 25
-material = SubResource( 3 )
+material = ExtResource( 1 )
 
 [connection signal="input_event" from="Area" to="." method="_on_Area_input_event"]
+[connection signal="mouse_entered" from="Area" to="." method="_on_Area_mouse_entered"]
+[connection signal="mouse_exited" from="Area" to="." method="_on_Area_mouse_exited"]
