@@ -32,9 +32,6 @@ var cef = null
 var current_node_id = 0
 
 func init_events():
-	var search_btn = get_node("Interface/SearchBar/SearchBtn")
-	search_btn.connect("_on_SearchBtn_pressed", self, "_on_SearchBtn_pressed")
-
 	var browser_controller = get_node("Interface/Browser/BrowserController")
 	browser_controller.connect("prev_node", self, "prev_node")
 	browser_controller.connect("next_node", self, "next_node")

@@ -9,20 +9,20 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Node",
+"base": "",
 "class": "AppHandler",
 "language": "NativeScript",
-"path": "res://poc2/bin/apphandler.gdns"
+"path": "res://lib/apphandler.gdns"
 }, {
-"base": "Node",
+"base": "",
 "class": "BrowserView",
 "language": "NativeScript",
-"path": "res://poc2/bin/browserview.gdns"
+"path": "res://lib/browserview.gdns"
 }, {
-"base": "GDScript",
+"base": "",
 "class": "GDCef",
 "language": "NativeScript",
-"path": "res://poc2/bin/gdcef.gdns"
+"path": "res://lib/gdcef.gdns"
 } ]
 _global_script_class_icons={
 "AppHandler": "",
