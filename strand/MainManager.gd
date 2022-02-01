@@ -29,6 +29,8 @@ var nodes_data = {}
 
 var cef = null
 
+var mouse_pressed = false
+
 var current_node_id = 0
 
 func init_events():
@@ -42,20 +44,67 @@ func browser_event(event):
 		return
 
 	if event is InputEventMouseButton:
+		
 		if event.button_index == BUTTON_WHEEL_UP:
-			cef.on_mouse_wheel(10)
+			cef.on_mouse_wheel(5)
+			print("Mouse : Wheel UP")
 		elif event.button_index == BUTTON_WHEEL_DOWN:
-			cef.on_mouse_wheel(-10)
+			cef.on_mouse_wheel(-5)
+			print("Mouse : Wheel DOWN")
 		elif event.button_index == BUTTON_LEFT:
-			cef.on_mouse_click(event.button_index, event.pressed)
-			cef.on_mouse_click(event.button_index, event.pressed)
-
+			if event.pressed == true:
+				mouse_pressed = true
+				cef.on_mouse_left_down()
+				print("Mouse : LEFT_DOWN")
+			else:
+				mouse_pressed = false
+				cef.on_mouse_left_up()
+				print("Mouse : LEFT_UP")
+		elif event.button_index == BUTTON_RIGHT:
+			if event.pressed == true:
+				mouse_pressed = true
+				cef.on_mouse_right_down()
+				print("Mouse : RIGHT_DOWN")
+			else:
+				mouse_pressed = false
+				cef.on_mouse_right_up()
+				print("Mouse : RIGHT_UP")
+		else:
+			if event.pressed == true:
+				mouse_pressed = true
+				cef.on_mouse_middle_down()
+				print("Mouse : MIDDLE_DOWN")
+			else:
+				mouse_pressed = false
+				cef.on_mouse_middle_up()
+				print("Mouse : MIDDLE_UP")
+			
+			#cef.on_mouse_click(event.button_index, event.pressed)
+			#cef.on_mouse_click(event.button_index, event.pressed)
+			#print("Mouse : Click")
+		
 	elif event is InputEventMouseMotion:
+		
+		if mouse_pressed == true :
+			print ("still pressed")
+			cef.on_mouse_left_down()
+		#cef.on_mouse_moved(event.position.x, event.position.y)
 		cef.on_mouse_moved(event.position.x, event.position.y)
-
+		
+		
 	elif event is InputEventKey:
-		cef.on_key_pressed(event.scanCode, event.pressed)
-
+		
+		print("---------------------------------------")
+		print("Key Pressed :", event.scancode, " | ", event.pressed, " | ", event.unicode, " | ", event.physical_scancode)
+		print("OS :", OS.get_scancode_string(event.scancode) , " | ", OS.get_scancode_string(event.unicode))
+		print("---------------------------------------")
+		#cef.on_key_event(0 ,event.scancode, event.scancode)
+		
+		
+		
+		cef.on_key_pressed(event.unicode, event.pressed, 
+						event.shift, event.alt, event.control)
+	
 
 func init_browser():
 	cef = GDCef.new()
