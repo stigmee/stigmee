@@ -36,6 +36,8 @@ func _process(delta):
 	get_input_keyboard(delta)
 
 func get_input_keyboard(delta):
+	if not Global.enable_orbit_camera:
+		return
 	var y_rotation = 0
 	if Input.is_action_pressed("cam_left"):
 		y_rotation += 1
@@ -50,10 +52,11 @@ func get_input_keyboard(delta):
 		translate(t)
 
 func _unhandled_input(event):
+	if not Global.enable_orbit_camera:
+		return
 	if event.is_action_pressed("cam_zoom_in"):
 		zoom -= ZOOM_SPEED
 	if event.is_action_pressed("cam_zoom_out"):
 		zoom += ZOOM_SPEED
 	zoom = clamp(zoom, 0.5, 10)
 	scale = Vector3.ONE * zoom
-

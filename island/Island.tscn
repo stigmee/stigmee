@@ -39,25 +39,30 @@ __meta__ = {
 }
 
 [node name="Strand1" parent="Interface/StrandList" instance=ExtResource( 5 )]
+margin_right = 453.0
 rect_pivot_offset = Vector2( -915.084, 279.296 )
 
 [node name="Strand2" parent="Interface/StrandList" instance=ExtResource( 5 )]
 margin_top = 54.0
+margin_right = 453.0
 margin_bottom = 104.0
 rect_pivot_offset = Vector2( -915.084, 279.296 )
 
 [node name="Strand3" parent="Interface/StrandList" instance=ExtResource( 5 )]
 margin_top = 108.0
+margin_right = 453.0
 margin_bottom = 158.0
 rect_pivot_offset = Vector2( -915.084, 279.296 )
 
 [node name="Strand4" parent="Interface/StrandList" instance=ExtResource( 5 )]
 margin_top = 162.0
+margin_right = 453.0
 margin_bottom = 212.0
 rect_pivot_offset = Vector2( -915.084, 279.296 )
 
 [node name="Strand5" parent="Interface/StrandList" instance=ExtResource( 5 )]
 margin_top = 216.0
+margin_right = 453.0
 margin_bottom = 266.0
 rect_pivot_offset = Vector2( -915.084, 279.296 )
 

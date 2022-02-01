@@ -28,67 +28,92 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -667.0
+margin_left = -867.0
 margin_top = -1047.0
-margin_right = 684.0
+margin_right = 875.0
 margin_bottom = -2.0
+script = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="BrowserControllerClose" type="HBoxContainer" parent="Browser"]
-margin_right = 1351.0
-margin_bottom = 20.0
-alignment = 2
-script = ExtResource( 3 )
+[node name="TopBar" type="NinePatchRect" parent="Browser"]
+margin_right = 1742.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 0, 40 )
 
-[node name="Close" type="Button" parent="Browser/BrowserControllerClose"]
-margin_left = 1331.0
-margin_right = 1351.0
-margin_bottom = 20.0
-text = "X"
+[node name="TopBarLeft" type="HBoxContainer" parent="Browser/TopBar"]
+anchor_bottom = 1.0
+margin_right = 134.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="BrowserController" type="HBoxContainer" parent="Browser"]
-margin_top = 24.0
-margin_right = 1351.0
-margin_bottom = 44.0
-script = ExtResource( 3 )
-
-[node name="Prev" type="Button" parent="Browser/BrowserController"]
-margin_right = 20.0
-margin_bottom = 20.0
+[node name="Prev" type="Button" parent="Browser/TopBar/TopBarLeft"]
+margin_right = 40.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 40, 0 )
 text = "<"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Next" type="Button" parent="Browser/BrowserController"]
-margin_left = 24.0
-margin_right = 44.0
-margin_bottom = 20.0
+[node name="Next" type="Button" parent="Browser/TopBar/TopBarLeft"]
+margin_left = 44.0
+margin_right = 84.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 40, 0 )
 text = ">"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Search" type="Button" parent="Browser/BrowserController"]
-margin_left = 48.0
-margin_right = 134.0
-margin_bottom = 20.0
+[node name="Home" type="Button" parent="Browser/TopBar/TopBarLeft"]
+margin_left = 88.0
+margin_right = 148.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 60, 0 )
 focus_mode = 0
 enabled_focus_mode = 0
-text = "New Search"
+text = "Home"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TopBarRight" type="HBoxContainer" parent="Browser/TopBar"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -144.0
+alignment = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SaveLinkBtn" type="Button" parent="Browser/TopBar/TopBarRight"]
+margin_right = 100.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 100, 0 )
+text = "Save Link"
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Close" type="Button" parent="Browser/TopBar/TopBarRight"]
+margin_left = 104.0
+margin_right = 144.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 40, 0 )
+text = "X"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Panel" type="Panel" parent="Browser"]
 material = SubResource( 2 )
-margin_top = 48.0
-margin_right = 1351.0
+margin_top = 44.0
+margin_right = 1742.0
 margin_bottom = 1045.0
 size_flags_vertical = 3
 
@@ -97,21 +122,6 @@ margin_right = 1347.0
 margin_bottom = 1006.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="SaveLinkBtn" type="Button" parent="."]
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-margin_left = -229.564
-margin_top = -51.5273
-margin_right = -48.5636
-margin_bottom = 27.4727
-text = "Save Link"
-script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -157,10 +167,11 @@ margin_right = 337.0
 margin_bottom = 88.0
 text = "Save"
 
-[connection signal="pressed" from="Browser/BrowserControllerClose/Close" to="Browser/BrowserControllerClose" method="_on_Close_pressed"]
-[connection signal="pressed" from="Browser/BrowserController/Prev" to="Browser/BrowserController" method="_on_Prev_pressed"]
-[connection signal="pressed" from="Browser/BrowserController/Next" to="Browser/BrowserController" method="_on_Next_pressed"]
-[connection signal="pressed" from="Browser/BrowserController/Search" to="Browser/BrowserController" method="_on_Search_pressed"]
-[connection signal="gui_input" from="Browser/Panel/Texture" to="Browser/BrowserController" method="_on_Texture_gui_input"]
-[connection signal="pressed" from="SaveLinkBtn" to="SaveLinkBtn" method="_on_SaveLinkBtn_pressed"]
-[connection signal="pressed" from="RenameLinkPanel/VBoxContainer/Button" to="SaveLinkBtn" method="_on_Button_pressed"]
+[connection signal="pressed" from="Browser/TopBar/TopBarLeft/Prev" to="Browser" method="_on_Prev_pressed"]
+[connection signal="pressed" from="Browser/TopBar/TopBarLeft/Next" to="Browser" method="_on_Next_pressed"]
+[connection signal="pressed" from="Browser/TopBar/TopBarLeft/Home" to="Browser" method="_on_Home_pressed"]
+[connection signal="pressed" from="Browser/TopBar/TopBarRight/SaveLinkBtn" to="Browser/TopBar/TopBarRight/SaveLinkBtn" method="_on_SaveLinkBtn_pressed"]
+[connection signal="pressed" from="Browser/TopBar/TopBarRight/Close" to="Browser" method="_on_Close_pressed"]
+[connection signal="gui_input" from="Browser/Panel/Texture" to="Browser" method="_on_Texture_gui_input"]
+[connection signal="gui_input" from="Browser/Panel/Texture" to="Browser/TopBar/TopBarLeft" method="_on_Texture_gui_input"]
+[connection signal="pressed" from="RenameLinkPanel/VBoxContainer/Button" to="Browser/TopBar/TopBarRight/SaveLinkBtn" method="_on_Button_pressed"]

@@ -22,16 +22,43 @@ extends Spatial
 
 var node_id
 var siteName
+var label
+var icon
+
+var offset
+var FLOATING_INVERSE_AMPLITUDE = 15 # high = low amplitude
+
+func _ready():
+	label = find_node("Label")
+	icon = find_node("Icon")
+	init_floating_sphere_movement()
+	
+func init_floating_sphere_movement():
+	var rng = RandomNumberGenerator.new()
+	rng.randomize()
+	offset = rng.randf_range(-10.0, 10.0)
+	$Sphere.rotate_y(rng.randf_range(0, 360))
 
 func on_click():
-	get_parent().load_node(node_id)
+	find_parent("Root").load_node(node_id)
 
 func _on_Area_input_event(camera, event, position, normal, shape_idx):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
 		on_click()
 
+func floating_sphere_movement():
+	var ms = float(OS.get_ticks_msec()) / 1000
+	var cosMs = cos(ms + offset) / FLOATING_INVERSE_AMPLITUDE
+	var sinMs = sin(ms + offset) / FLOATING_INVERSE_AMPLITUDE
+	$Sphere.translation = Vector3(cosMs, cosMs + sinMs, sinMs)
+
+func _process(delta):
+	floating_sphere_movement()
+
 func set_data(id, siteName):
 	node_id = id
+	$Sphere.visible = siteName != null
+	icon.visible = siteName == null
 	if siteName:
 		siteName = siteName
-		$Viewport/Label.text = siteName
+		label.text = siteName

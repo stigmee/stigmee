@@ -18,15 +18,16 @@
 ## along with this program.  If not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-extends HBoxContainer
+extends VBoxContainer
 
 signal prev_node
 signal next_node
 signal browser_event
-signal new_search
+signal browser_close
+signal home
 
 func _on_Close_pressed():
-	get_parent().get_parent().visible = false
+	emit_signal("browser_close")
 
 func _on_Prev_pressed():
 	emit_signal("prev_node")
@@ -37,5 +38,5 @@ func _on_Next_pressed():
 func _on_Texture_gui_input(event):
 	emit_signal("browser_event", event)
 
-func _on_Search_pressed():
-	emit_signal("new_search")
+func _on_Home_pressed():
+	emit_signal("home")

@@ -21,3 +21,4 @@
 extends Node
 
 var strand_id
+var enable_orbit_camera = true

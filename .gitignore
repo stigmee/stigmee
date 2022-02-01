@@ -16,3 +16,7 @@ data_*/
 bin/
 lib/
 GPUCache/
+
+libgdcef.dll
+libgdcef.exp
+libgdcef.lib

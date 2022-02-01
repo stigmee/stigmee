@@ -34,21 +34,22 @@ var mouse_pressed = false
 var current_node_id = 0
 
 func init_events():
-	var browser_controller = get_node("Interface/Browser/BrowserController")
+	var browser_controller = $Interface/Browser
 	browser_controller.connect("prev_node", self, "prev_node")
 	browser_controller.connect("next_node", self, "next_node")
-	browser_controller.connect("new_search", self, "new_search")
+	browser_controller.connect("home", self, "home")
+	browser_controller.connect("browser_close", self, "browser_close")
 	browser_controller.connect("browser_event", self, "browser_event")
-	var save_link_btn = get_node("Interface/SaveLinkBtn")
+	var save_link_btn = find_node("SaveLinkBtn")
 	save_link_btn.connect("save_link", self, "save_link")
 
-func new_search():
+func home():
 	load_link("https://google.com")
 
 func save_link(name):
 	var current_url = cef.get_url()
 	assign_link_to_node(current_url, current_node_id, name)
-	$Interface.visible = false
+	browser_close()
 
 func browser_event(event):
 	if not cef:
@@ -85,7 +86,6 @@ func browser_event(event):
 		cef.on_mouse_moved(event.position.x, event.position.y)
 
 func _unhandled_input(event):
-	
 	if event is InputEventKey:
 		if event.unicode != 0:
 			cef.on_key_pressed(event.unicode, event.pressed, event.shift, event.alt, event.control)
@@ -93,15 +93,16 @@ func _unhandled_input(event):
 			cef.on_key_pressed(event.scancode, event.pressed, event.shift, event.alt, event.control)
 	if event.is_action_pressed("ui_cancel"):
 		if $Interface.visible:
-			$Interface.visible = false
+			browser_close()
 		else:
 			get_tree().change_scene("res://island/Island.tscn")
-		
+
 func init_browser():
 	cef = GDCef.new()
 	var browser = get_node("Interface")
 	browser.visible = false
-	
+	Global.enable_orbit_camera = true
+
 func _ready():
 	Global.strand_id = Global.strand_id
 	if not Global.strand_id:
@@ -211,7 +212,13 @@ func load_link(link):
 	var browser_size = $Interface/Browser/Panel.get_size()
 	$Interface/Browser/Panel/Texture.set_size(browser_size)
 	cef.reshape(browser_size.x, browser_size.y)
+	
 	$Interface.visible = true
+	Global.enable_orbit_camera = false
+
+func browser_close():
+	$Interface.visible = false
+	Global.enable_orbit_camera = true
 
 func prev_node():
 	cef.navigate_back()
