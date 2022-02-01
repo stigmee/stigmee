@@ -1,6 +1,17 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=5 format=2]
 
+[ext_resource path="res://strand/interface/SaveLinkBtn.gd" type="Script" id=1]
 [ext_resource path="res://strand/interface/BrowserController.gd" type="Script" id=3]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+void fragment(){
+  COLOR = vec4(1, 1, 1, 1.0);
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
 
 [node name="Interface" type="Control"]
 anchor_right = 1.0
@@ -13,7 +24,6 @@ __meta__ = {
 }
 
 [node name="Browser" type="VBoxContainer" parent="."]
-visible = false
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
@@ -45,12 +55,10 @@ __meta__ = {
 margin_top = 24.0
 margin_right = 1351.0
 margin_bottom = 44.0
-alignment = 2
 script = ExtResource( 3 )
 
 [node name="Prev" type="Button" parent="Browser/BrowserController"]
-margin_left = 1307.0
-margin_right = 1327.0
+margin_right = 20.0
 margin_bottom = 20.0
 text = "<"
 __meta__ = {
@@ -58,15 +66,27 @@ __meta__ = {
 }
 
 [node name="Next" type="Button" parent="Browser/BrowserController"]
-margin_left = 1331.0
-margin_right = 1351.0
+margin_left = 24.0
+margin_right = 44.0
 margin_bottom = 20.0
 text = ">"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Search" type="Button" parent="Browser/BrowserController"]
+margin_left = 48.0
+margin_right = 134.0
+margin_bottom = 20.0
+focus_mode = 0
+enabled_focus_mode = 0
+text = "New Search"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Panel" type="Panel" parent="Browser"]
+material = SubResource( 2 )
 margin_top = 48.0
 margin_right = 1351.0
 margin_bottom = 1045.0
@@ -81,7 +101,66 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="SaveLinkBtn" type="Button" parent="."]
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = -229.564
+margin_top = -51.5273
+margin_right = -48.5636
+margin_bottom = 27.4727
+text = "Save Link"
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RenameLinkPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -169.0
+margin_top = -83.5
+margin_right = 169.0
+margin_bottom = 83.5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="RenameLinkPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RichTextLabel" type="RichTextLabel" parent="RenameLinkPanel/VBoxContainer"]
+margin_right = 337.0
+margin_bottom = 30.0
+rect_min_size = Vector2( 0, 30 )
+text = "Name of the resource"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NewNameInput" type="TextEdit" parent="RenameLinkPanel/VBoxContainer"]
+margin_top = 34.0
+margin_right = 337.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 0, 30 )
+
+[node name="Button" type="Button" parent="RenameLinkPanel/VBoxContainer"]
+margin_top = 68.0
+margin_right = 337.0
+margin_bottom = 88.0
+text = "Save"
+
 [connection signal="pressed" from="Browser/BrowserControllerClose/Close" to="Browser/BrowserControllerClose" method="_on_Close_pressed"]
 [connection signal="pressed" from="Browser/BrowserController/Prev" to="Browser/BrowserController" method="_on_Prev_pressed"]
 [connection signal="pressed" from="Browser/BrowserController/Next" to="Browser/BrowserController" method="_on_Next_pressed"]
+[connection signal="pressed" from="Browser/BrowserController/Search" to="Browser/BrowserController" method="_on_Search_pressed"]
 [connection signal="gui_input" from="Browser/Panel/Texture" to="Browser/BrowserController" method="_on_Texture_gui_input"]
+[connection signal="pressed" from="SaveLinkBtn" to="SaveLinkBtn" method="_on_SaveLinkBtn_pressed"]
+[connection signal="pressed" from="RenameLinkPanel/VBoxContainer/Button" to="SaveLinkBtn" method="_on_Button_pressed"]

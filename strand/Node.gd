@@ -20,20 +20,11 @@
 
 extends Spatial
 
-var isAddButton = true
-var url
 var node_id
 var siteName
-var domainName
-
-func add_link():
-	get_parent().request_add_link()
 
 func on_click():
-	if not isAddButton:
-		get_parent().load_node(node_id)
-	else:
-		add_link()
+	get_parent().load_node(node_id)
 
 func _on_Area_input_event(camera, event, position, normal, shape_idx):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
@@ -41,6 +32,6 @@ func _on_Area_input_event(camera, event, position, normal, shape_idx):
 
 func set_data(id, siteName):
 	node_id = id
-	if siteName.length() > 0:
-		isAddButton = false
-	$Viewport/Label.text = siteName
+	if siteName:
+		siteName = siteName
+		$Viewport/Label.text = siteName

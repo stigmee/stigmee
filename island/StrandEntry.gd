@@ -18,17 +18,27 @@
 ## along with this program.  If not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-extends Node2D
+extends HBoxContainer
 
-func load_strand(id):
+var id = -1
+
+signal rename_strand
+
+func set_id(new_id):
+	id = new_id
+
+func set_name(name):
+	$Open.text = name
+
+func _on_Open_pressed():
 	Global.strand_id = id
-	get_tree().change_scene("res://strand/MainScene.tscn")
+	get_tree().change_scene("res://strand/Strand.tscn")
 
-func _on_Strand1_pressed():
-	load_strand(1)
+func _on_Rename_pressed():
+	emit_signal('rename_strand', id)
 
-func _on_Strand2_pressed():
-	load_strand(2)
-
-func _on_Strand3_pressed():
-	load_strand(3)
+func _on_Clear_pressed():
+	var save_game = File.new()
+	save_game.open("user://savelinks"+str(id)+".save", File.WRITE)
+	save_game.store_line("{}")
+	save_game.close()

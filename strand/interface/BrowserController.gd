@@ -23,9 +23,10 @@ extends HBoxContainer
 signal prev_node
 signal next_node
 signal browser_event
+signal new_search
 
 func _on_Close_pressed():
-	get_parent().visible = false
+	get_parent().get_parent().visible = false
 
 func _on_Prev_pressed():
 	emit_signal("prev_node")
@@ -34,5 +35,7 @@ func _on_Next_pressed():
 	emit_signal("next_node")
 
 func _on_Texture_gui_input(event):
-	print("A")
 	emit_signal("browser_event", event)
+
+func _on_Search_pressed():
+	emit_signal("new_search")

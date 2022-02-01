@@ -10,30 +10,18 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "",
-"class": "AppHandler",
-"language": "NativeScript",
-"path": "res://lib/apphandler.gdns"
-}, {
-"base": "",
-"class": "BrowserView",
-"language": "NativeScript",
-"path": "res://lib/browserview.gdns"
-}, {
-"base": "",
 "class": "GDCef",
 "language": "NativeScript",
-"path": "res://lib/gdcef.gdns"
+"path": "res://gdcef.gdns"
 } ]
 _global_script_class_icons={
-"AppHandler": "",
-"BrowserView": "",
 "GDCef": ""
 }
 
 [application]
 
 config/name="Test1 3D"
-run/main_scene="res://strand/MainScene.tscn"
+run/main_scene="res://island/Island.tscn"
 config/icon="res://icon.png"
 
 [autoload]

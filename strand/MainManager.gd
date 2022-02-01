@@ -37,96 +37,79 @@ func init_events():
 	var browser_controller = get_node("Interface/Browser/BrowserController")
 	browser_controller.connect("prev_node", self, "prev_node")
 	browser_controller.connect("next_node", self, "next_node")
+	browser_controller.connect("new_search", self, "new_search")
 	browser_controller.connect("browser_event", self, "browser_event")
+	var save_link_btn = get_node("Interface/SaveLinkBtn")
+	save_link_btn.connect("save_link", self, "save_link")
+
+func new_search():
+	load_link("https://google.com")
+
+func save_link(name):
+	var current_url = cef.get_url()
+	assign_link_to_node(current_url, current_node_id, name)
+	$Interface.visible = false
 
 func browser_event(event):
 	if not cef:
 		return
 
 	if event is InputEventMouseButton:
-		
+
 		if event.button_index == BUTTON_WHEEL_UP:
 			cef.on_mouse_wheel(5)
-			print("Mouse : Wheel UP")
 		elif event.button_index == BUTTON_WHEEL_DOWN:
 			cef.on_mouse_wheel(-5)
-			print("Mouse : Wheel DOWN")
 		elif event.button_index == BUTTON_LEFT:
+			mouse_pressed = event.pressed
 			if event.pressed == true:
-				mouse_pressed = true
 				cef.on_mouse_left_down()
-				print("Mouse : LEFT_DOWN")
 			else:
-				mouse_pressed = false
 				cef.on_mouse_left_up()
-				print("Mouse : LEFT_UP")
 		elif event.button_index == BUTTON_RIGHT:
+			mouse_pressed = event.pressed
 			if event.pressed == true:
-				mouse_pressed = true
 				cef.on_mouse_right_down()
-				print("Mouse : RIGHT_DOWN")
 			else:
-				mouse_pressed = false
 				cef.on_mouse_right_up()
-				print("Mouse : RIGHT_UP")
 		else:
+			mouse_pressed = event.pressed
 			if event.pressed == true:
-				mouse_pressed = true
 				cef.on_mouse_middle_down()
-				print("Mouse : MIDDLE_DOWN")
 			else:
-				mouse_pressed = false
 				cef.on_mouse_middle_up()
-				print("Mouse : MIDDLE_UP")
-			
-			#cef.on_mouse_click(event.button_index, event.pressed)
-			#cef.on_mouse_click(event.button_index, event.pressed)
-			#print("Mouse : Click")
-		
-	elif event is InputEventMouseMotion:
-		
-		if mouse_pressed == true :
-			print ("still pressed")
-			cef.on_mouse_left_down()
-		#cef.on_mouse_moved(event.position.x, event.position.y)
-		cef.on_mouse_moved(event.position.x, event.position.y)
-		
-		
-	elif event is InputEventKey:
-		
-		print("---------------------------------------")
-		print("Key Pressed :", event.scancode, " | ", event.pressed, " | ", event.unicode, " | ", event.physical_scancode)
-		print("OS :", OS.get_scancode_string(event.scancode) , " | ", OS.get_scancode_string(event.unicode))
-		print("---------------------------------------")
-		#cef.on_key_event(0 ,event.scancode, event.scancode)
-		
-		
-		
-		cef.on_key_pressed(event.unicode, event.pressed, 
-						event.shift, event.alt, event.control)
-	
 
+	elif event is InputEventMouseMotion:
+		if mouse_pressed == true :
+			cef.on_mouse_left_down()
+		cef.on_mouse_moved(event.position.x, event.position.y)
+
+func _unhandled_input(event):
+	
+	if event is InputEventKey:
+		if event.unicode != 0:
+			cef.on_key_pressed(event.unicode, event.pressed, event.shift, event.alt, event.control)
+		else:
+			cef.on_key_pressed(event.scancode, event.pressed, event.shift, event.alt, event.control)
+	if event.is_action_pressed("ui_cancel"):
+		if $Interface.visible:
+			$Interface.visible = false
+		else:
+			get_tree().change_scene("res://island/Island.tscn")
+		
 func init_browser():
 	cef = GDCef.new()
-
+	var browser = get_node("Interface")
+	browser.visible = false
+	
 func _ready():
-	Global.strand_id = Global.strand_id || 1
-	print(Global.strand_id)
+	Global.strand_id = Global.strand_id
+	if not Global.strand_id:
+		Global.strand_id = 1
 	place_nodes($IslandGeneration.get_river())
 	init_browser()
 	init_events()
-
-	links = [
-		"https://en.wikipedia.org/wiki/Permaculture",
-		"https://www.permaculturedesign.fr/comment-faire-un-jardin-en-permaculture/",
-		"https://www.youtube.com/watch?v=oRbZN3YaeUI",
-		"https://www.youtube.com/watch?v=tgazUCrCNU8",
-		"https://www.culturesenville.fr/blog/permaculture-definition-principes/",
-		"https://www.jardiner-malin.fr/fiche/permaculture-c-est-quoi.html",
-		"https://www.permaculture.co.uk/what-is-permaculture",
-		"https://www.gammvert.fr/conseils/conseils-de-jardinage/7-points-cles-pour-faire-un-potager-en-permaculture"
-	]
-	assign_links_to_nodes(links)
+	load_links()
 
 func instanciate_node(x, y, z):
 	var node = NODE.instance()
@@ -141,6 +124,7 @@ func place_node(node, link, side):
 	var z = node.pos.y + side * node.radius * 3
 	var n = instanciate_node(x, y, z)
 	physicalNodes.append(n)
+	n.set_data(physicalNodes.size() - 1, null)
 
 func place_nodes(river_nodes):
 	var ratio = round(river_nodes.size() / links.size())
@@ -155,20 +139,41 @@ func place_nodes(river_nodes):
 		place_node(nodes[id], links[id], side)
 		side = -1 if side == 1 else 1
 
-func assign_links_to_nodes(links):
-	var id = 0
-	for url in links:
-		var data = get_data_from_url(url)
-		physicalNodes[id].set_data(id, data.site_name)
-		nodes_data[id] = data
-		id += 1
+func assign_link_to_node(url, id, name):
+	var data = get_data_from_url(url)
+	data.custom_name = name
+	if !data.has("custom_name"):
+		data.custom_name = data.site_name
+	physicalNodes[id].set_data(id, data.custom_name)
+	nodes_data[str(id)] = data
+	save_links()
+
+func save_links():
+	var save_game = File.new()
+	save_game.open("user://savelinks"+str(Global.strand_id)+".save", File.WRITE)
+	save_game.store_line(to_json(nodes_data))
+	save_game.close()
+	
+func load_links():
+	var save_game = File.new()
+	if not save_game.file_exists("user://savelinks"+str(Global.strand_id)+".save"):
+		return {}
+	save_game.open("user://savelinks"+str(Global.strand_id)+".save", File.READ)
+	nodes_data = parse_json(save_game.get_line())
+	for key in nodes_data:
+		var data = nodes_data[key]
+		if !data.has("custom_name"):
+			data.custom_name = data.site_name
+		physicalNodes[int(key)].set_data(int(key), data.custom_name)
+	save_game.close()
 
 func load_node(node_id):
-	if not nodes_data.has(node_id):
-		return
-	var data = nodes_data[node_id]
-	load_link(data.url)
 	current_node_id = node_id
+	if not nodes_data.has(str(node_id)):
+		load_link("https://google.com")
+		return
+	var data = nodes_data[str(node_id)]
+	load_link(data.url)
 
 func get_data_from_url(url):
 	var data = {}
@@ -206,25 +211,16 @@ func load_link(link):
 	var browser_size = $Interface/Browser/Panel.get_size()
 	$Interface/Browser/Panel/Texture.set_size(browser_size)
 	cef.reshape(browser_size.x, browser_size.y)
-	$Interface/Browser.visible = true
+	$Interface.visible = true
 
 func prev_node():
 	cef.navigate_back()
-#	load_node(current_node_id - 1)
 
 func next_node():
 	cef.navigate_forward()
-#	load_node(current_node_id + 1)
-
-func request_add_link():
-	load_link("https://google.com")
 
 func _process(delta):
-	if cef == null or not $Interface/Browser.visible:
+	if cef == null or not $Interface.visible:
 		return
-	_my_work()
-	$Interface/Browser/Panel/Texture.texture = cef.get_texture()
-
-func _my_work():
 	cef.do_message_loop_work()
-
+	$Interface/Browser/Panel/Texture.texture = cef.get_texture()

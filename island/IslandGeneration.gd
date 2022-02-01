@@ -24,7 +24,7 @@ const NB_CORNERS = 6
 const START_ANGLE = PI / 2
 const CORNER_RADIUS = 2 * PI / NB_CORNERS
 const NB_RINGS = 20
-const SCALE = 0.5
+const SCALE = 1
 const POLYGON_SCALE = 0.5
 
 const SPEED = 0
@@ -44,10 +44,10 @@ var m
 func get_noise(x,y):
 	var pos = Vector2(x,y)
 	if pos.distance_to(Vector2.ZERO) > 15:
-		return -100
+		return -10
 	if pos.distance_to(Vector2.ZERO) > 10:
-		return -3
-	return noise.get_noise_2d(x, y) * MAP_INTENSITY + MAP_INTENSITY / 2 - 3
+		return -2
+	return noise.get_noise_2d(x, y) * MAP_INTENSITY + MAP_INTENSITY / 2 - 2
 
 func flatten_world(array):
 	for i in range(1, array.size() -1):
