@@ -173,5 +173,4 @@ text = "Save"
 [connection signal="pressed" from="Browser/TopBar/TopBarRight/SaveLinkBtn" to="Browser/TopBar/TopBarRight/SaveLinkBtn" method="_on_SaveLinkBtn_pressed"]
 [connection signal="pressed" from="Browser/TopBar/TopBarRight/Close" to="Browser" method="_on_Close_pressed"]
 [connection signal="gui_input" from="Browser/Panel/Texture" to="Browser" method="_on_Texture_gui_input"]
-[connection signal="gui_input" from="Browser/Panel/Texture" to="Browser/TopBar/TopBarLeft" method="_on_Texture_gui_input"]
 [connection signal="pressed" from="RenameLinkPanel/VBoxContainer/Button" to="Browser/TopBar/TopBarRight/SaveLinkBtn" method="_on_Button_pressed"]

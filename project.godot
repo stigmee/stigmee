@@ -13,9 +13,15 @@ _global_script_classes=[ {
 "class": "GDCef",
 "language": "NativeScript",
 "path": "res://gdcef.gdns"
+}, {
+"base": "",
+"class": "Stigmark",
+"language": "NativeScript",
+"path": "res://stigmark.gdns"
 } ]
 _global_script_class_icons={
-"GDCef": ""
+"GDCef": "",
+"Stigmark": ""
 }
 
 [application]
