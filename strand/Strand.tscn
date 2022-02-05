@@ -1,40 +1,63 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://strand/interface/Interface.tscn" type="PackedScene" id=1]
 [ext_resource path="res://strand/Generation.tscn" type="PackedScene" id=2]
 [ext_resource path="res://strand/StrandManager.gd" type="Script" id=3]
 [ext_resource path="res://strand/StrandGeneration.gd" type="Script" id=4]
-[ext_resource path="res://utils/OrbitCamera.tscn" type="PackedScene" id=5]
 [ext_resource path="res://theme/default_theme.tres" type="Theme" id=6]
 
-[node name="Root" type="Spatial"]
+[node name="Strand" type="Spatial"]
 script = ExtResource( 3 )
 links = [ "Facebook", "Wikipedia", "", "Pinterest", "Medium", null, null, null, "Wikipedia", null, null, null, "Twitter", null, "Medium", null, null, null, null, null, "Pinterest" ]
 
-[node name="Menu" type="Control" parent="."]
-anchor_top = 1.0
-anchor_bottom = 1.0
-margin_top = -52.0
-margin_right = 272.0
+[node name="Hint" type="Control" parent="."]
+anchor_right = 1.0
+margin_bottom = 162.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="CheckButton" type="CheckButton" parent="Menu"]
-anchor_left = 1.0
-anchor_top = 1.0
+[node name="HintAddResource" type="CenterContainer" parent="Hint"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -169.0
-margin_top = -116.0
-margin_bottom = -74.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="RichTextLabel" parent="Hint/HintAddResource"]
+margin_left = 760.0
+margin_top = 51.0
+margin_right = 1160.0
+margin_bottom = 111.0
+rect_min_size = Vector2( 400, 60 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
 theme = ExtResource( 6 )
-custom_colors/font_color_disabled = Color( 0, 0, 0, 1 )
-custom_colors/font_color_hover_pressed = Color( 0, 0, 0, 1 )
-custom_colors/font_color = Color( 0, 0, 0, 1 )
-custom_colors/font_color_hover = Color( 0, 0, 0, 1 )
-custom_colors/font_color_pressed = Color( 0, 0, 0, 1 )
-text = "Edit Mode"
+text = "  Click on a + sign to place your Resource.
+Click on an existing Resource to replace it."
+
+[node name="Menu" type="Control" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -136.0
+margin_top = -104.0
+margin_right = 136.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="OpenBrowser" type="Button" parent="Menu"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -69.0
+margin_right = 69.0
+margin_bottom = 34.0
+focus_mode = 0
+theme = ExtResource( 6 )
+enabled_focus_mode = 0
+text = "Web Browser"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -42,9 +65,7 @@ __meta__ = {
 [node name="Interface" parent="." instance=ExtResource( 1 )]
 visible = false
 
-[node name="OrbitCamera" parent="." instance=ExtResource( 5 )]
-
 [node name="IslandGeneration" parent="." instance=ExtResource( 2 )]
 script = ExtResource( 4 )
 
-[connection signal="pressed" from="Menu/CheckButton" to="." method="_on_CheckButton_pressed"]
+[connection signal="pressed" from="Menu/OpenBrowser" to="." method="_on_OpenBrowser_pressed"]

@@ -31,8 +31,11 @@ var nodes_data = {}
 
 var cef = null
 var mouse_pressed = false
+var placing_node = false
 
 var current_node_id = 0
+var current_url
+var current_name
 
 func init_events():
 	var browser_controller = $Interface/Browser
@@ -48,9 +51,12 @@ func home():
 	load_link(Global.DEFAULT_SEARCH_ENGINE_URL)
 
 func save_link(name):
-	var current_url = cef.get_url()
-	assign_link_to_node(current_url, current_node_id, name)
+	current_url = cef.get_url()
 	browser_close()
+	placing_node = true
+	current_name = name
+	Global.edit_mode = true
+	$Hint/HintAddResource.visible = true
 
 func browser_event(event):
 	if not cef:
@@ -96,25 +102,38 @@ func _unhandled_input(event):
 		if $Interface.visible:
 			browser_close()
 		else:
-			get_tree().change_scene("res://island/Island.tscn")
+			find_parent("Spatial").find_node("Island").visible = true
+			find_parent("Spatial").find_node("Strand").visible = false
+			for child in find_parent("Spatial").find_node("Strand").get_children():
+				child.visible = false
+			find_parent("Spatial").get_node("OrbitCamera").set_zoom(2)
+			for child in find_parent("Spatial").find_node("Island").get_children():
+				child.visible = true
 
 func init_browser():
-	if not Global.cef:
+	if not cef:
 		cef = GDCef.new()
 	var browser = get_node("Interface")
 	browser.visible = false
 	Global.enable_orbit_camera = true
 
-func _ready():
-	Global.strand_id = Global.strand_id
-	if not Global.strand_id:
-		Global.strand_id = 1
+func _on_Spatial_tree_exiting():
+	cef.cef_stop()
+	print("CEF stopped")
+
+func init(strand_id):
+	for elem in physicalNodes:
+		self.remove_child(elem)
+	physicalNodes.clear()
 	Global.edit_mode = false
-	SAVE_PATH = Global.STRAND_SAVE % Global.strand_id
+	$Hint/HintAddResource.visible = false
+	SAVE_PATH = Global.STRAND_SAVE % strand_id
 	place_nodes($IslandGeneration.get_river())
+	load_links()
+
+func _ready():
 	init_browser()
 	init_events()
-	load_links()
 
 func instanciate_node(x, y, z):
 	var node = NODE.instance()
@@ -173,10 +192,21 @@ func load_links():
 
 func load_node(node_id):
 	current_node_id = node_id
+	if placing_node:
+		assign_link_to_node(current_url, current_node_id, current_name)
+		placing_node = false
+		current_name = ""
+		$Hint/HintAddResource.visible = false
+		current_url = null
+		Global.edit_mode = false
+		return
 	var url = Global.DEFAULT_SEARCH_ENGINE_URL
 	if nodes_data.has(str(node_id)):
 		url = nodes_data[str(node_id)].url
 	load_link(url)
+
+func assign_link_to_empty_node(link, id):
+	assign_link_to_node(current_url, id, name)
 
 func load_link(link):
 	cef.load_url(link)
@@ -202,5 +232,5 @@ func _process(delta):
 	cef.do_message_loop_work()
 	$Interface/Browser/Panel/Texture.texture = cef.get_texture()
 
-func _on_CheckButton_pressed():
-	Global.edit_mode = find_node("CheckButton").is_pressed()
+func _on_OpenBrowser_pressed():
+	load_link(Global.DEFAULT_SEARCH_ENGINE_URL)

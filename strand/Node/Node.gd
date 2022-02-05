@@ -27,26 +27,28 @@ var icon
 
 var offset
 var FLOATING_INVERSE_AMPLITUDE = 15 # high = low amplitude
+var PLUS_HOVER_SCALING = 1.6
 
 var hover_material
+
+var rng
 
 var hovered = false
 
 func _ready():
 	label = find_node("Label")
 	icon = find_node("Icon")
+	rng = RandomNumberGenerator.new()
+	rng.randomize()
 	init_floating_sphere_movement()
-
 	hover_material = preload("res://strand/Node/node_hover_material.tres")
 
 func init_floating_sphere_movement():
-	var rng = RandomNumberGenerator.new()
-	rng.randomize()
 	offset = rng.randf_range(-10.0, 10.0)
 	$Sphere.rotate_y(rng.randf_range(0, 360))
 
 func on_click():
-	find_parent("Root").load_node(node_id)
+	find_parent("Strand").load_node(node_id)
 
 func _on_Area_input_event(camera, event, position, normal, shape_idx):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
@@ -75,8 +77,10 @@ func _on_Area_mouse_entered():
 	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 	$Sphere.radius = 0.35
 	$Sphere.material_override = hover_material
+	$Viewport/NodeText/Icon.scale = $Viewport/NodeText/Icon.scale * PLUS_HOVER_SCALING
 
 func _on_Area_mouse_exited():
 	Input.set_default_cursor_shape(0)
 	$Sphere.radius = 0.25
 	$Sphere.material_override = null
+	$Viewport/NodeText/Icon.scale = $Viewport/NodeText/Icon.scale / PLUS_HOVER_SCALING

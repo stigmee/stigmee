@@ -29,7 +29,6 @@ var DEFAULT_SEARCH_ENGINE_URL = "https://google.com"
 
 # GLOBALS
 
-var cef
 var strand_id
 
 var enable_orbit_camera = true

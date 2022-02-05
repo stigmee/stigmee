@@ -175,4 +175,3 @@ func get_input_keyboard(delta):
 	if Input.is_action_pressed("generate"):
 		vertexes.clear()
 		build_island()
-

@@ -21,8 +21,13 @@
 extends HBoxContainer
 
 var id = -1
+var strand_resource
 
 signal rename_strand
+signal clear_strand
+
+func _ready():
+	strand_resource = load("res://strand/Strand.tscn")
 
 func set_id(new_id):
 	id = new_id
@@ -31,14 +36,20 @@ func set_name(name):
 	$Open.text = name
 
 func _on_Open_pressed():
-	Global.strand_id = id
-	get_tree().change_scene("res://strand/Strand.tscn")
+	var strand = strand_resource.instance()
+	find_parent("Spatial").find_node("Strand").init(id)
+	find_parent("Spatial").get_node("OrbitCamera").set_zoom(3)
+	find_parent("Spatial").find_node("Strand").visible = true
+	find_parent("Island").visible = false
+	for child in find_parent("Island").get_children():
+		child.visible = false
+	for child in find_parent("Spatial").find_node("Strand").get_children():
+		if child.name != "Interface":
+			child.visible = true
 
 func _on_Rename_pressed():
 	emit_signal('rename_strand', id)
 
 func _on_Clear_pressed():
-	var save_game = File.new()
-	save_game.open("user://savelinks"+str(id)+".save", File.WRITE)
-	save_game.store_line("{}")
-	save_game.close()
+	emit_signal('clear_strand', id)
+

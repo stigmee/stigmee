@@ -3,13 +3,10 @@
 [ext_resource path="res://strand/Node/node_material.tres" type="Material" id=1]
 [ext_resource path="res://strand/Node/Node.gd" type="Script" id=2]
 [ext_resource path="res://strand/Node/NodeText.tscn" type="PackedScene" id=3]
+[ext_resource path="res://strand/Node/Viewport.tres" type="Texture" id=4]
 
 [sub_resource type="SphereShape" id=1]
 radius = 1.027
-
-[sub_resource type="ViewportTexture" id=2]
-flags = 4
-viewport_path = NodePath("Viewport")
 
 [node name="Node" type="Spatial"]
 script = ExtResource( 2 )
@@ -31,7 +28,7 @@ gui_disable_input = true
 transform = Transform( 2.69655, 0, 0, 0, 2.69655, 0, 0, 0, 0.5, -0.00922346, 0.64373, 0.00590944 )
 flip_v = true
 billboard = 1
-texture = SubResource( 2 )
+texture = ExtResource( 4 )
 
 [node name="Sphere" type="CSGSphere" parent="."]
 radius = 0.25

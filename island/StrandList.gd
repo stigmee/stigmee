@@ -23,8 +23,18 @@ extends VBoxContainer
 var strands_data = {}
 var current_rename_id
 
+var rename_link_panel
+var rename_link_text
+
 func _ready():
-	get_parent().get_node("RenameLinkPanel").visible = false
+	find_parent("Spatial").find_node("Strand").visible = false
+	for child in find_parent("Spatial").find_node("Strand").get_children():
+		child.visible = false
+	var parent = get_parent()
+	rename_link_panel = parent.get_node("RenameLinkPanel")
+	rename_link_text = parent.get_node("RenameLinkPanel/VBoxContainer/HBoxContainer/NewNameInput")
+
+	rename_link_panel.visible = false
 	load_strands()
 	var children = get_children()
 	var id = 1
@@ -34,10 +44,21 @@ func _ready():
 			strands_data[str(id)] = { name = "Strand " + str(id) }
 		child.set_name(strands_data[str(id)].name)
 		child.connect("rename_strand", self, "open_rename_strand")
+		child.connect("clear_strand", self, "clear_strand")
 		id += 1
 
+func clear_strand(id):
+	var save_game = File.new()
+	save_game.open(Global.STRAND_SAVE % id, File.WRITE)
+	save_game.store_line("{}")
+	save_game.close()
+	strands_data[str(id)] = { name = "Strand " + str(id) }
+	rename_strand(id, strands_data[str(id)].name)
+
 func open_rename_strand(id):
-	get_parent().get_node("RenameLinkPanel").visible = true
+	Global.enable_orbit_camera = false
+	rename_link_text.text = ""
+	rename_link_panel.visible = true
 	current_rename_id = id
 
 func save_strands():
@@ -54,12 +75,15 @@ func load_strands():
 	strands_data = parse_json(save_strands.get_line())
 	save_strands.close()
 
+func rename_strand(id, name):
+	strands_data[str(id)].name = name
+	save_strands()
+	get_child(id - 1).set_name(name)
+	rename_link_panel.visible = false
+	Global.enable_orbit_camera = true
+
 func _on_RenameBtn_pressed():
-	var name = get_parent().get_node("RenameLinkPanel/VBoxContainer/HBoxContainer/NewNameInput").text
+	var name = rename_link_text.text
 	if !name or name.length() == 0:
 		return
-	strands_data[str(current_rename_id)].name = name
-	save_strands()
-	get_child(current_rename_id - 1).set_name(name)
-	get_parent().get_node("RenameLinkPanel").visible = false
-
+	rename_strand(current_rename_id, name)
