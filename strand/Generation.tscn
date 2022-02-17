@@ -1,17 +1,18 @@
 [gd_scene load_steps=2 format=2]
 
 [sub_resource type="SpatialMaterial" id=1]
-flags_transparent = true
 albedo_color = Color( 0.184314, 0.462745, 1, 0.839216 )
 
 [node name="Spatial" type="Spatial"]
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.953953, 0.299957, 0, -0.299957, 0.953953, 0, 0, 0 )
+transform = Transform( 0.780441, 0.187542, -0.596439, 0, 0.953953, 0.299957, 0.625229, -0.234099, 0.744504, 0, 0, 0 )
 light_color = Color( 0.905882, 0.6, 0.12549, 1 )
 
 [node name="CSGBox" type="CSGBox" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.78007, 0 )
 width = 1000.0
+height = 0.1
 depth = 1000.0
 material = SubResource( 1 )
+
+[node name="GeneratedIsland" type="MeshInstance" parent="."]

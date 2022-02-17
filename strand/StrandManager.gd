@@ -21,8 +21,12 @@
 extends Spatial
 
 const NODE = preload("res://strand/Node/Node.tscn")
-export var links = []
+const BROWSER_EVENTS = ["prev_node", "next_node", "home", "browser_close", "browser_event"]
+
 var nodes = []
+
+const DEFAULT_ZOOM = 5
+const NB_NODES = 21
 
 var SAVE_PATH
 
@@ -37,13 +41,49 @@ var current_node_id = 0
 var current_url
 var current_name
 
+var stigmark:Stigmark;
+
+var is_open = false
+
+func load_scene():
+	init_browser()
+	init_events()
+	$StrandGeneration.init()
+	stigmark = $Stigmark
+
+func open_scene(data):
+	is_open = true
+	var strand_id = data.strand_id
+	SAVE_PATH = Global.STRAND_SAVE % strand_id
+	Global.edit_mode = false
+
+	hide_UI()
+	$AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text = ""
+	$Menu.visible = true
+	$StrandGeneration.visible = true
+	$GeneratedStrand.visible = true
+
+	place_nodes($StrandGeneration.get_river())
+	load_links()
+	self.visible = true
+	get_parent().get_node("OrbitCamera").set_zoom(DEFAULT_ZOOM)
+
+func clear_nodes():
+	for elem in physicalNodes:
+		self.remove_child(elem)
+	physicalNodes.clear()
+
+func close_scene():
+	is_open = false
+	clear_nodes()
+	self.visible = false
+	for child in get_children():
+		child.visible = false
+
 func init_events():
 	var browser_controller = $Interface/Browser
-	browser_controller.connect("prev_node", self, "prev_node")
-	browser_controller.connect("next_node", self, "next_node")
-	browser_controller.connect("home", self, "home")
-	browser_controller.connect("browser_close", self, "browser_close")
-	browser_controller.connect("browser_event", self, "browser_event")
+	for event in BROWSER_EVENTS:
+		browser_controller.connect(event, self, event)
 	var save_link_btn = find_node("SaveLinkBtn")
 	save_link_btn.connect("save_link", self, "save_link")
 
@@ -63,7 +103,6 @@ func browser_event(event):
 		return
 
 	if event is InputEventMouseButton:
-
 		if event.button_index == BUTTON_WHEEL_UP:
 			cef.on_mouse_wheel(5)
 		elif event.button_index == BUTTON_WHEEL_DOWN:
@@ -102,13 +141,7 @@ func _unhandled_input(event):
 		if $Interface.visible:
 			browser_close()
 		else:
-			find_parent("Spatial").find_node("Island").visible = true
-			find_parent("Spatial").find_node("Strand").visible = false
-			for child in find_parent("Spatial").find_node("Strand").get_children():
-				child.visible = false
-			find_parent("Spatial").get_node("OrbitCamera").set_zoom(2)
-			for child in find_parent("Spatial").find_node("Island").get_children():
-				child.visible = true
+			find_parent("SceneManager").switch_to_island()
 
 func init_browser():
 	if not cef:
@@ -120,20 +153,27 @@ func init_browser():
 func _on_Spatial_tree_exiting():
 	cef.cef_stop()
 	print("CEF stopped")
-
-func init(strand_id):
-	for elem in physicalNodes:
-		self.remove_child(elem)
-	physicalNodes.clear()
-	Global.edit_mode = false
+	
+func hide_UI():
 	$Hint/HintAddResource.visible = false
-	SAVE_PATH = Global.STRAND_SAVE % strand_id
-	place_nodes($IslandGeneration.get_river())
-	load_links()
+	$AutofillLinkPanel.visible = false
+	$Menu.visible = false
+	$Interface.visible = false
 
-func _ready():
-	init_browser()
-	init_events()
+func get_next_empty_node_id():
+	for i in range(0, len(physicalNodes) - 1):
+		if not str(i) in nodes_data:
+			return i
+	return -1
+
+func _on_Stigmark_on_search(collections):
+	for collection in collections:
+		var urls = collection.urls
+		for url in urls:
+			var id = get_next_empty_node_id()
+			if id != -1:
+				assign_link_to_node(url.uri, id, url.uri)
+			print(url)
 
 func instanciate_node(x, y, z):
 	var node = NODE.instance()
@@ -142,30 +182,38 @@ func instanciate_node(x, y, z):
 	node.scale_object_local(Vector3(4,4,4))
 	return node
 
-func place_node(node, link, side):
-	var x = node.pos.x + 3
-	var y = rand_range(2,4)
-	var z = node.pos.y + side * node.radius * 3
+func place_node(node, side):
+	var x = node.realPos.x
+	var y = node.realPos.y + 5
+	var z = node.realPos.z + side * node.radius * 3 + node.radius
 	var n = instanciate_node(x, y, z)
 	physicalNodes.append(n)
 	n.set_data(physicalNodes.size() - 1, null)
 
 func place_nodes(river_nodes):
-	var ratio = round(river_nodes.size() / links.size())
+	var ratio = round(river_nodes.size() / NB_NODES)
 	var current_node = 2
-	var nodes = []
-	while nodes.size() <= links.size():
+	nodes = []
+	while nodes.size() <= NB_NODES:
 		nodes.append(river_nodes[current_node])
 		current_node += ratio
 
 	var side = 1
-	for id in range(0, links.size()):
-		place_node(nodes[id], links[id], side)
+	for id in range(0, NB_NODES):
+		place_node(nodes[id], side)
 		side = -1 if side == 1 else 1
 
 func assign_link_to_node(url, id, name):
 	var data = {}
 	data.url = url
+	if name.begins_with("https://"):
+		var slashToCut = 3
+		for i in range(0,name.length()):
+			if name[i] == "/":
+				slashToCut -= 1
+			if slashToCut == 0:
+				name = name.substr(8, i - 8)
+				break
 	data.custom_name = name
 	if !data.has("custom_name"):
 		data.custom_name = url
@@ -190,7 +238,7 @@ func load_links():
 		physicalNodes[int(key)].set_data(int(key), data.custom_name)
 	save_game.close()
 
-func load_node(node_id):
+func click_node(node_id):
 	current_node_id = node_id
 	if placing_node:
 		assign_link_to_node(current_url, current_node_id, current_name)
@@ -204,9 +252,6 @@ func load_node(node_id):
 	if nodes_data.has(str(node_id)):
 		url = nodes_data[str(node_id)].url
 	load_link(url)
-
-func assign_link_to_empty_node(link, id):
-	assign_link_to_node(current_url, id, name)
 
 func load_link(link):
 	cef.load_url(link)
@@ -226,11 +271,24 @@ func prev_node():
 func next_node():
 	cef.navigate_forward()
 
-func _process(delta):
-	if cef == null or not $Interface.visible:
+func _process(_delta):
+	if not is_open or cef == null or not $Interface.visible:
 		return
 	cef.do_message_loop_work()
 	$Interface/Browser/Panel/Texture.texture = cef.get_texture()
 
 func _on_OpenBrowser_pressed():
 	load_link(Global.DEFAULT_SEARCH_ENGINE_URL)
+
+func _on_StigmarkButton_pressed():
+	$AutofillLinkPanel.visible = not $AutofillLinkPanel.visible
+	Global.enable_orbit_camera = not $AutofillLinkPanel.visible
+
+func _on_StigmarkSearch_pressed():
+	var keyword = $AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text
+	if len(keyword) == 0:
+		return
+	stigmark.search_async(keyword)
+	$AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text = ""
+	Global.enable_orbit_camera = true
+	$AutofillLinkPanel.visible = false

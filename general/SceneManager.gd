@@ -18,26 +18,53 @@
 ## along with this program.  If not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-extends HBoxContainer
+extends Spatial
 
-var id = -1
+enum STATE_SCENE {
+	ISLAND = 1,
+	STRAND
+}
 
-signal open_strand
-signal rename_strand
-signal clear_strand
+var nodes = {}
+var island_node
+var strand_node
 
-func set_id(new_id):
-	id = new_id
+var current_state
 
-func set_name(name):
-	$Open.text = name
+func set_state(new_state, data={}):
+	if new_state == current_state:
+		return
+	if current_state:
+		nodes[current_state].close_scene()
+		print("Closed " + nodes[current_state].name)
 
-func _on_Open_pressed():
-	emit_signal('open_strand', id)
+	current_state = new_state
+	nodes[current_state].open_scene(data)
+	print("Opened " + nodes[current_state].name)
 
-func _on_Rename_pressed():
-	emit_signal('rename_strand', id)
+func init_nodes_list():
+	island_node = $Island
+	strand_node = $Strand
+	nodes[STATE_SCENE.ISLAND] = island_node
+	nodes[STATE_SCENE.STRAND] = strand_node
 
-func _on_Clear_pressed():
-	emit_signal('clear_strand', id)
+func init():
+	init_nodes_list()
+	for index in nodes:
+		var node = nodes[index]
+		node.load_scene()
+		node.close_scene()
+#	switch_to_island()
+	switch_to_strand(1)
 
+func _ready():
+	init()
+
+func switch_to_island():
+	set_state(STATE_SCENE.ISLAND)
+
+func switch_to_strand(strand_id):
+	set_state(STATE_SCENE.STRAND, { "strand_id": strand_id })
+
+func quit():
+	pass

@@ -26,14 +26,10 @@ var current_rename_id
 var rename_link_panel
 var rename_link_text
 
-func _ready():
-	find_parent("Spatial").find_node("Strand").visible = false
-	for child in find_parent("Spatial").find_node("Strand").get_children():
-		child.visible = false
+func init():
 	var parent = get_parent()
 	rename_link_panel = parent.get_node("RenameLinkPanel")
 	rename_link_text = parent.get_node("RenameLinkPanel/VBoxContainer/HBoxContainer/NewNameInput")
-
 	rename_link_panel.visible = false
 	load_strands()
 	var children = get_children()
@@ -41,18 +37,22 @@ func _ready():
 	for child in children:
 		child.set_id(id)
 		if not strands_data.has(str(id)):
-			strands_data[str(id)] = { name = "Strand " + str(id) }
+			strands_data[str(id)] = { name = "<empty>" }
 		child.set_name(strands_data[str(id)].name)
+		child.connect("open_strand", self, "open_strand")
 		child.connect("rename_strand", self, "open_rename_strand")
 		child.connect("clear_strand", self, "clear_strand")
 		id += 1
+
+func open_strand(id):
+	find_parent("SceneManager").switch_to_strand(id)
 
 func clear_strand(id):
 	var save_game = File.new()
 	save_game.open(Global.STRAND_SAVE % id, File.WRITE)
 	save_game.store_line("{}")
 	save_game.close()
-	strands_data[str(id)] = { name = "Strand " + str(id) }
+	strands_data[str(id)] = { name = "<empty>" }
 	rename_strand(id, strands_data[str(id)].name)
 
 func open_rename_strand(id):

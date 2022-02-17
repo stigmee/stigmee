@@ -29,149 +29,82 @@ const POLYGON_SCALE = 0.5
 
 const SPEED = 0
 
-const MAP_INTENSITY = 3 # height of mountains
-const MAP_PERIOD = 10 # size of mountains
-const MAP_PERSISTENCE = 0.1 # 0.1 = smooth, 1 = not smooth
+const MAP_INTENSITY = 50 # height of mountains
+const MAP_PERIOD = 150 # size of mountains
+const MAP_PERSISTENCE = 0.5 # 0.1 = smooth, 1 = not smooth
+const ISLAND_SIZE = 200
 
-var noise
-var BLUE_MATERIAL
-var WHITE_MATERIAL
+var DEFAULT_ZOOM = 5
+var is_open = false
 
-var st
-var vertexes = []
-var m
+func load_scene():
+	build_island()
+	$Interface/StrandList.init()
 
-func get_noise(x,y):
-	var pos = Vector2(x,y)
-	if pos.distance_to(Vector2.ZERO) > 15:
-		return -10
-	if pos.distance_to(Vector2.ZERO) > 10:
-		return -2
-	return noise.get_noise_2d(x, y) * MAP_INTENSITY + MAP_INTENSITY / 2 - 2
+func open_scene(_data):
+	is_open = true
+	self.visible = true
+	for child in get_children():
+		child.visible = true
+	get_parent().get_node("OrbitCamera").set_zoom(DEFAULT_ZOOM)
 
-func flatten_world(array):
-	for i in range(1, array.size() -1):
-		var curr = array[i]
-		if curr.y <= -2 * MAP_INTENSITY:
-			continue
-		var prev = array[i - 1]
-		var next = array[i + 1]
-		if abs((curr.y + prev.y + next.y) / 3 - curr.y) > 0.2:
-			array[i].y = (curr.y + prev.y + next.y) / 3
+func close_scene():
+	is_open = false
+	self.visible = false
+	for child in get_children():
+		child.visible = false
 
-func get_ring_positions(layer):
-	if layer == 0:
-		return [ Vector3(0, get_noise(0, 0), 0) ]
-
-	var array = []
-	var corners = []
-
-	# Add 6 corners
-	var angle = START_ANGLE
-	for _i in range(NB_CORNERS):
-		corners.append(layer * Vector3(cos(angle), 0, -sin(angle)) * SCALE)
-		angle -= CORNER_RADIUS
-
-	# from each corner, compute middle points
-	var size = corners.size()
-	var pos
-	for i in size:
-		pos = corners[i]
-		pos.y = get_noise(pos.x, pos.z)
-		array.append(pos)
-		var next = corners[0 if i + 1 >= size else (i + 1)]
-		var dist = (next - corners[i]) / layer
-		for j in range(1, layer):
-			pos = corners[i] + j * dist
-			pos.y = get_noise(pos.x, pos.z)
-			array.append(pos)
-	return array
-
-func generate_vertexes(size):
-	for i in range(size):
-		vertexes.append_array(get_ring_positions(i))
-
-func init_noise():
-	noise = OpenSimplexNoise.new()
-	var seedValue = floor(rand_range(0, 1000))
-	noise.seed = seedValue
-	noise.octaves = 9
-	noise.period = MAP_PERIOD
-	noise.persistence = MAP_PERSISTENCE
-
-func init():
-	init_noise()
-	generate_vertexes(NB_RINGS)
-	for i in range(1,5):
-		flatten_world(vertexes)
-
-func add_vertex(vertex):
-	st.add_uv(Vector2(vertex.x, vertex.z))
-	st.add_vertex(vertex)
-
-func add_triangle(first, second, third):
-	add_vertex(vertexes[first])
-	add_vertex(vertexes[second])
-	add_vertex(vertexes[third])
-
-func generate_triangles_ring(level, root, start, nb_nodes):
-	var base_root = root
-	var value_max_nodes = start + nb_nodes
-	for i in range(start, value_max_nodes, level):
-		for j in range(0, level):
-			var node1 = i + j
-			var node2 = i + j + 1 if i + j + 1 <= value_max_nodes else start
-			var node3 = root + j if root + j < start else base_root
-			add_triangle(node1, node2, node3)
-			if SPEED:
-				yield(get_tree().create_timer(SPEED), "timeout")
-			if j != level - 1:
-				node1 = i + 1 + j
-				node2 = root + j + 1 if root + j + 1 < start else base_root
-				node3 = root + j
-				add_triangle(node1, node2, node3)
-				if SPEED:
-					yield(get_tree().create_timer(SPEED), "timeout")
-		root += level - 1
-	if level == 1:
-		add_triangle(6, 1, 0)
-
-func generate_world():
-	var level = 1
-	var root = 0
-	var start = 1
-	var nb_nodes = 5
-	for i in range(1, NB_RINGS):
-		generate_triangles_ring(level, root, start, nb_nodes)
-		level += 1
-		root = start
-		start += nb_nodes + 1
-		nb_nodes += 6
+func gradientAtPos(pos):
+	return pos.length() / (ISLAND_SIZE * sqrt(2))
 
 func generate():
-	if m:
-		remove_child(m)
-	m = MeshInstance.new()
-	add_child(m)
-	st = SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	generate_world()
-	st.generate_normals()
-	st.generate_tangents()
-	m.mesh = st.commit()
+	var noise = OpenSimplexNoise.new()
+	var rng = RandomNumberGenerator.new()
+	rng.randomize()
+	var seedValue = rng.randi_range(0, 1000)
+	noise.seed = seedValue
+	noise.period = MAP_PERIOD
+	noise.octaves = 6
+	noise.persistence = MAP_PERSISTENCE
+	
+	var plane_mesh = PlaneMesh.new()
+	plane_mesh.size = Vector2.ONE * ISLAND_SIZE
+	plane_mesh.subdivide_depth = 150
+	plane_mesh.subdivide_width = 150
+	
+	var surface_tool = SurfaceTool.new()
+	surface_tool.create_from(plane_mesh, 0)
+	
+	var array_plane = surface_tool.commit()
+	
+	var data_tool = MeshDataTool.new()
+	data_tool.create_from_surface(array_plane, 0)
+
+#	var maxValue = 0
+#	var maxPos
+
+	for i in range(data_tool.get_vertex_count()):
+		var vertex = data_tool.get_vertex(i)
+		var noiseValue = noise.get_noise_3d(vertex.x, vertex.y, vertex.z)
+		vertex.y = (noiseValue - gradientAtPos(vertex)) * MAP_INTENSITY
+#		if vertex.y > maxValue:
+#			maxValue = vertex.y
+#			maxPos = vertex
+		
+		data_tool.set_vertex(i, vertex)
+	
+	for i in range(array_plane.get_surface_count()):
+		array_plane.surface_remove(i)
+	
+	data_tool.commit_to_surface(array_plane)
+	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	surface_tool.create_from(array_plane, 0)
+	surface_tool.generate_normals()
+	
+#	var mesh_instance = MeshInstance.new()
+	$GeneratedIsland.mesh = surface_tool.commit()
+#	mesh_instance.translate(-Vector3(maxPos.x, 0, maxPos.z))
+#	add_child(mesh_instance)
 
 func build_island():
-	init()
 	generate()
-
-func _ready():
-	build_island()
-	get_parent().get_node("OrbitCamera").set_zoom(1)
-
-func _process(delta):
-	get_input_keyboard(delta)
-
-func get_input_keyboard(delta):
-	if Input.is_action_pressed("generate"):
-		vertexes.clear()
-		build_island()
