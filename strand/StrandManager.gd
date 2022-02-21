@@ -22,6 +22,7 @@ extends Spatial
 
 const NODE = preload("res://strand/Node/Node.tscn")
 const BROWSER_EVENTS = ["prev_node", "next_node", "home", "browser_close", "browser_event"]
+const FETCHING_TITLE_PLACEHOLDER = "Fetching title..."
 
 var nodes = []
 
@@ -41,6 +42,8 @@ var current_node_id = 0
 var current_url
 var current_name
 
+var requested_title = {}
+
 var stigmark:Stigmark;
 
 var is_open = false
@@ -50,7 +53,7 @@ func load_scene():
 	init_events()
 	$StrandGeneration.init()
 	stigmark = $Stigmark
-
+	
 func open_scene(data):
 	is_open = true
 	var strand_id = data.strand_id
@@ -184,7 +187,7 @@ func instanciate_node(x, y, z):
 
 func place_node(node, side):
 	var x = node.realPos.x
-	var y = node.realPos.y + 5
+	var y = node.realPos.y + 7
 	var z = node.realPos.z + side * node.radius * 3 + node.radius
 	var n = instanciate_node(x, y, z)
 	physicalNodes.append(n)
@@ -203,17 +206,32 @@ func place_nodes(river_nodes):
 		place_node(nodes[id], side)
 		side = -1 if side == 1 else 1
 
+func request_html_title(id, url):
+	var newHttp = HTTPRequest.new()
+	add_child(newHttp)
+	newHttp.request(url)
+	var response = yield (newHttp, "request_completed")
+	var body = response[3]
+	if not body:
+		assign_link_to_node(url, id, "")
+		return
+	var content = body.get_string_from_utf8()
+	if not "<title>" in content:
+		assign_link_to_node(url, id, "")
+		return
+	var title = content.split("<title>")[1].split("</title>")[0]
+	nodes_data[str(id)].title = title
+	if nodes_data[str(id)].custom_name == FETCHING_TITLE_PLACEHOLDER:
+		assign_link_to_node(url, id, title.substr(0, 15))
+	$Interface/Browser/TopBar/ColorRect/Title.text = title
+	remove_child(newHttp)
+
 func assign_link_to_node(url, id, name):
 	var data = {}
 	data.url = url
 	if name.begins_with("https://"):
-		var slashToCut = 3
-		for i in range(0,name.length()):
-			if name[i] == "/":
-				slashToCut -= 1
-			if slashToCut == 0:
-				name = name.substr(8, i - 8)
-				break
+		name = FETCHING_TITLE_PLACEHOLDER
+		request_html_title(id, url)
 	data.custom_name = name
 	if !data.has("custom_name"):
 		data.custom_name = url
@@ -247,11 +265,17 @@ func click_node(node_id):
 		$Hint/HintAddResource.visible = false
 		current_url = null
 		Global.edit_mode = false
+		request_html_title(current_node_id, current_url)
 		return
 	var url = Global.DEFAULT_SEARCH_ENGINE_URL
 	if nodes_data.has(str(node_id)):
 		url = nodes_data[str(node_id)].url
 	load_link(url)
+	if not "title" in nodes_data[str(node_id)]:
+		request_html_title(node_id, url)
+		$Interface/Browser/TopBar/ColorRect/Title.text = ""
+	else:
+		$Interface/Browser/TopBar/ColorRect/Title.text = nodes_data[str(node_id)].title
 
 func load_link(link):
 	cef.load_url(link)

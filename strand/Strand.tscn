@@ -23,16 +23,12 @@ uniform vec3 uv2_offset;
 
 uniform vec3 grass_color = vec3(0.0, 0.2, 0.0);
 uniform vec3 water_color = vec3(0.0, 0.1, 0.8);
-uniform vec3 snow_color = vec3(1.0, 1.0, 1.0);
 
 varying flat vec3 out_color;
 
 void vertex() {
 	UV=UV*uv1_scale.xy+uv1_offset.xy;
-	out_color=VERTEX.y > 13.0 ? snow_color : grass_color;
-	if (VERTEX.z <= sin(VERTEX.y) * 2.0 && VERTEX.z >= sin(VERTEX.y) * -2.0) {
-		out_color = water_color
-	}
+	out_color=VERTEX.z >= -5.0 && VERTEX.z <= 4.5 ? water_color : grass_color;
 }
 
 void fragment() {
@@ -58,7 +54,6 @@ shader_param/uv2_scale = Vector3( 1, 1, 1 )
 shader_param/uv2_offset = Vector3( 0, 0, 0 )
 shader_param/grass_color = Vector3( 0, 0.2, 0 )
 shader_param/water_color = Vector3( 0, 0.1, 0.8 )
-shader_param/snow_color = Vector3( 1, 1, 1 )
 
 [node name="Strand" type="Spatial"]
 script = ExtResource( 3 )
@@ -207,9 +202,12 @@ script = ExtResource( 4 )
 
 [node name="Stigmark" parent="." instance=ExtResource( 5 )]
 
+[node name="HTTPRequest" type="HTTPRequest" parent="Stigmark"]
+
 [node name="GeneratedStrand" type="MeshInstance" parent="."]
 material_override = SubResource( 2 )
 
 [connection signal="pressed" from="AutofillLinkPanel/VBoxContainer/CenterContainer/StigmarkSearch" to="." method="_on_StigmarkSearch_pressed"]
 [connection signal="pressed" from="Menu/HBoxContainer/OpenBrowser" to="." method="_on_OpenBrowser_pressed"]
 [connection signal="pressed" from="Menu/HBoxContainer/StigmarkButton" to="." method="_on_StigmarkButton_pressed"]
+[connection signal="on_search" from="Stigmark" to="." method="_on_Stigmark_on_search"]

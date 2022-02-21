@@ -54,8 +54,8 @@ func init():
 		var node = nodes[index]
 		node.load_scene()
 		node.close_scene()
-#	switch_to_island()
-	switch_to_strand(1)
+	switch_to_island()
+#	switch_to_strand(1)
 
 func _ready():
 	init()
