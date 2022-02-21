@@ -25,8 +25,6 @@ export var ZOOM_SPEED = 0.09
 var zoom = 5
 
 var dragging = false
-var mouse_start_pos
-var screen_start_position
 
 func _ready():
 	scale = Vector3.ONE * zoom
@@ -37,16 +35,13 @@ func _process(delta):
 	input_keyboard(delta)
 
 func _input(event):
+	if not Global.enable_orbit_camera:
+		return
 	if event.is_action("drag"):
-		if event.is_pressed():
-			mouse_start_pos = event.position
-			screen_start_position = Vector2(translation.x, translation.z)
-			dragging = true
-		else:
-			dragging = false
+		dragging = event.is_pressed()
 	elif event is InputEventMouseMotion and dragging:
-		var newPos: Vector2 = (zoom * (mouse_start_pos - event.position) + screen_start_position).normalized() / 10
-		translate(Vector3(newPos.x, 0, newPos.y))
+		var relativeRotated = Transform2D().rotated(-rotation.y) * event.relative
+		translation -= Vector3(relativeRotated.x, 0, relativeRotated.y) / 10
 
 func input_keyboard(delta):
 	if not Global.enable_orbit_camera:

@@ -80,16 +80,10 @@ func generate():
 	var data_tool = MeshDataTool.new()
 	data_tool.create_from_surface(array_plane, 0)
 
-#	var maxValue = 0
-#	var maxPos
-
 	for i in range(data_tool.get_vertex_count()):
 		var vertex = data_tool.get_vertex(i)
 		var noiseValue = noise.get_noise_3d(vertex.x, vertex.y, vertex.z)
 		vertex.y = (noiseValue - gradientAtPos(vertex)) * MAP_INTENSITY
-#		if vertex.y > maxValue:
-#			maxValue = vertex.y
-#			maxPos = vertex
 		
 		data_tool.set_vertex(i, vertex)
 	
@@ -100,11 +94,8 @@ func generate():
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	surface_tool.create_from(array_plane, 0)
 	surface_tool.generate_normals()
-	
-#	var mesh_instance = MeshInstance.new()
+
 	$GeneratedIsland.mesh = surface_tool.commit()
-#	mesh_instance.translate(-Vector3(maxPos.x, 0, maxPos.z))
-#	add_child(mesh_instance)
 
 func build_island():
 	generate()
