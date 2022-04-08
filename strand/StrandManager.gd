@@ -69,7 +69,7 @@ func open_scene(data):
 	place_nodes($StrandGeneration.get_river())
 	load_links()
 	self.visible = true
-	get_parent().get_node("OrbitCamera").set_zoom(DEFAULT_ZOOM)
+	#get_parent().get_node("OrbitCamera").set_zoom(DEFAULT_ZOOM)
 
 func clear_nodes():
 	for elem in physicalNodes:

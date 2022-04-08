@@ -46,7 +46,7 @@ func open_scene(_data):
 	self.visible = true
 	for child in get_children():
 		child.visible = true
-	get_parent().get_node("OrbitCamera").set_zoom(DEFAULT_ZOOM)
+	#get_parent().get_node("OrbitCamera").set_zoom(DEFAULT_ZOOM)
 
 func close_scene():
 	is_open = false
