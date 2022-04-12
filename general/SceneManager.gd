@@ -1,6 +1,7 @@
 ###############################################################################
 ## Stigmee: The art to sanctuarize knowledge exchanges.
 ## Copyright 2021-2022 Corentin CAILLEAUD <corentin.cailleaud@caillef.com>
+## Copyright 2021-2022 Quentin Quadrat <lecrapouille@gmail.com>
 ##
 ## This file is part of Stigmee.
 ##
@@ -18,53 +19,56 @@
 ## along with this program.  If not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
+# ==============================================================================
+# State machine memorizing the current activate Godot Spatial node. It calls
+# load_scene() when at init, calls close_scene() when the current node is no
+# longer active and calls the open_scene() when the new node is activated.
+# ==============================================================================
 extends Spatial
 
-enum STATE_SCENE {
-	ISLAND = 1,
-	STRAND
-}
+# Currently active Godot Spatial node
+var current_scene = null
 
-var nodes = {}
-var island_node
-var strand_node
-
-var current_state
-
-func set_state(new_state, data={}):
-	if new_state == current_state:
+# ==============================================================================
+# Close the current scene (state machine "on leaving" event) and load the new
+# scene ("on entering" event).
+# param[in] new_scene: the desired Godot Spatial node to be active.
+# param[in] data: extra information.
+# ==============================================================================
+func set_scene(new_scene, data={}):
+	assert(new_scene != null)
+	if new_scene == current_scene:
 		return
-	if current_state:
-		nodes[current_state].close_scene()
-		print("Closed " + nodes[current_state].name)
+	if current_scene != null:
+		current_scene.close_scene()
+		print("Scene closed: " + current_scene.name)
+	current_scene = new_scene
+	current_scene.open_scene(data)
+	print("Scene opened: " + current_scene.name)
 
-	current_state = new_state
-	nodes[current_state].open_scene(data)
-	print("Opened " + nodes[current_state].name)
-
-func init_nodes_list():
-	island_node = $Island
-	strand_node = $Strand
-	nodes[STATE_SCENE.ISLAND] = island_node
-	nodes[STATE_SCENE.STRAND] = strand_node
-
-func init():
-	init_nodes_list()
-	for index in nodes:
-		var node = nodes[index]
-		node.load_scene()
-		node.close_scene()
+# ==============================================================================
+# Switch to the Scene displaying islands.
+# ==============================================================================
+func _ready():
+	var scenes = [$Island, $Strand]
+	for scene in scenes:
+		scene.load_scene()
+		scene.close_scene()
 	switch_to_island()
 #	switch_to_strand(1)
 
-func _ready():
-	init()
-
+# ==============================================================================
+# Switch to the Scene displaying islands.
+# ==============================================================================
 func switch_to_island():
-	set_state(STATE_SCENE.ISLAND)
+	set_scene($Island)
 
+# ==============================================================================
+# Switch to the Scene displaying Stigmark strand.
+# param[in] strand_id the strand intifier (integer).
+# ==============================================================================
 func switch_to_strand(strand_id):
-	set_state(STATE_SCENE.STRAND, { "strand_id": strand_id })
+	set_scene($Strand, { "strand_id": strand_id })
 
 func quit():
 	pass
