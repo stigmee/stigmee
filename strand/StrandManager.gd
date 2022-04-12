@@ -1,6 +1,7 @@
 ###############################################################################
 ## Stigmee: The art to sanctuarize knowledge exchanges.
 ## Copyright 2021-2022 Corentin CAILLEAUD <corentin.cailleaud@caillef.com>
+## Copyright 2021-2022 Quentin Quadrat <lecrapouille@gmail.com>
 ##
 ## This file is part of Stigmee.
 ##
@@ -20,40 +21,47 @@
 
 extends Spatial
 
+# ==============================================================================
+#
+# ==============================================================================
 const NODE = preload("res://strand/Node/Node.tscn")
 const BROWSER_EVENTS = ["prev_node", "next_node", "home", "browser_close", "browser_event"]
 const FETCHING_TITLE_PLACEHOLDER = "Fetching title..."
 
-var nodes = []
-
-const DEFAULT_ZOOM = 5
+# ==============================================================================
+# Clickable moving spheres holding an URL
+# ==============================================================================
 const NB_NODES = 21
-
-var SAVE_PATH
-
+var nodes = []
 var physicalNodes = []
 var nodes_data = {}
-
-var cef = null
-var mouse_pressed = false
-var placing_node = false
-
 var current_node_id = 0
 var current_url
 var current_name
+var placing_node : bool = false
 
+# Chromium Embedded Framework (CEF) BrowserView
+var current_tab = null
+
+# ==============================================================================
+# ???
+# ==============================================================================
+var SAVE_PATH
+var mouse_pressed : bool = false
 var requested_title = {}
-
-var stigmark:Stigmark;
-
 var is_open = false
 
+# ==============================================================================
+# "on init" event called by the SceneManager state machine.
+# ==============================================================================
 func load_scene():
-	init_browser()
+	$Interface.visible = false
 	init_events()
 	$StrandGeneration.init()
-	stigmark = $Stigmark
-	
+
+# ==============================================================================
+# "on entry" event called by the SceneManager state machine.
+# ==============================================================================
 func open_scene(data):
 	is_open = true
 	var strand_id = data.strand_id
@@ -69,13 +77,18 @@ func open_scene(data):
 	place_nodes($StrandGeneration.get_river())
 	load_links()
 	self.visible = true
-	#get_parent().get_node("OrbitCamera").set_zoom(DEFAULT_ZOOM)
 
+# ==============================================================================
+# Remove dynamic spheres that hold URLs.
+# ==============================================================================
 func clear_nodes():
 	for elem in physicalNodes:
 		self.remove_child(elem)
 	physicalNodes.clear()
 
+# ==============================================================================
+# "on leaving" event called by the SceneManager state machine.
+# ==============================================================================
 func close_scene():
 	is_open = false
 	clear_nodes()
@@ -83,6 +96,9 @@ func close_scene():
 	for child in get_children():
 		child.visible = false
 
+# ==============================================================================
+# Connect signals of the browser GUI to functions
+# ==============================================================================
 func init_events():
 	var browser_controller = $Interface/Browser
 	for event in BROWSER_EVENTS:
@@ -90,94 +106,76 @@ func init_events():
 	var save_link_btn = find_node("SaveLinkBtn")
 	save_link_btn.connect("save_link", self, "save_link")
 
-func home():
-	load_link(Global.DEFAULT_SEARCH_ENGINE_URL)
-
+# ==============================================================================
+# 
+# ==============================================================================
 func save_link(name):
-	current_url = cef.get_url()
+	current_url = ""
+	if current_tab != null:
+		current_url = current_tab.get_url()
 	browser_close()
 	placing_node = true
 	current_name = name
 	Global.edit_mode = true
 	$Hint/HintAddResource.visible = true
 
+# ==============================================================================
+# Make the CEF browser reacts from mouse and keyboard events.
+# ==============================================================================
 func browser_event(event):
-	if not cef:
+	if current_tab == null:
 		return
 
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_WHEEL_UP:
-			cef.on_mouse_wheel(5)
+			current_tab.on_mouse_wheel(5)
 		elif event.button_index == BUTTON_WHEEL_DOWN:
-			cef.on_mouse_wheel(-5)
+			current_tab.on_mouse_wheel(-5)
 		elif event.button_index == BUTTON_LEFT:
 			mouse_pressed = event.pressed
 			if event.pressed == true:
-				cef.on_mouse_left_down()
+				current_tab.on_mouse_left_down()
 			else:
-				cef.on_mouse_left_up()
+				current_tab.on_mouse_left_up()
 		elif event.button_index == BUTTON_RIGHT:
 			mouse_pressed = event.pressed
 			if event.pressed == true:
-				cef.on_mouse_right_down()
+				current_tab.on_mouse_right_down()
 			else:
-				cef.on_mouse_right_up()
+				current_tab.on_mouse_right_up()
 		else:
 			mouse_pressed = event.pressed
 			if event.pressed == true:
-				cef.on_mouse_middle_down()
+				current_tab.on_mouse_middle_down()
 			else:
-				cef.on_mouse_middle_up()
+				current_tab.on_mouse_middle_up()
 
 	elif event is InputEventMouseMotion:
 		if mouse_pressed == true :
-			cef.on_mouse_left_down()
-		cef.on_mouse_moved(event.position.x, event.position.y)
+			current_tab.on_mouse_left_down()
+		current_tab.on_mouse_moved(event.position.x, event.position.y)
 
-func _unhandled_input(event):
-	if event is InputEventKey:
-		if event.unicode != 0:
-			cef.on_key_pressed(event.unicode, event.pressed, event.shift, event.alt, event.control)
-		else:
-			cef.on_key_pressed(event.scancode, event.pressed, event.shift, event.alt, event.control)
-	if event.is_action_pressed("ui_cancel"):
-		if $Interface.visible:
-			browser_close()
-		else:
-			find_parent("SceneManager").switch_to_island()
-
-func init_browser():
-	if not cef:
-		cef = GDCef.new()
-	var browser = get_node("Interface")
-	browser.visible = false
-	Global.enable_orbit_camera = true
-
-func _on_Spatial_tree_exiting():
-	cef.cef_stop()
-	print("CEF stopped")
-	
+# ==============================================================================
+#
+# ==============================================================================
 func hide_UI():
 	$Hint/HintAddResource.visible = false
 	$AutofillLinkPanel.visible = false
 	$Menu.visible = false
 	$Interface.visible = false
 
+# ==============================================================================
+#
+# ==============================================================================
 func get_next_empty_node_id():
 	for i in range(0, len(physicalNodes) - 1):
 		if not str(i) in nodes_data:
 			return i
 	return -1
 
-func _on_Stigmark_on_search(collections):
-	for collection in collections:
-		var urls = collection.urls
-		for url in urls:
-			var id = get_next_empty_node_id()
-			if id != -1:
-				assign_link_to_node(url.uri, id, url.uri)
-			print(url)
-
+# ==============================================================================
+# 
+# ==============================================================================
 func instanciate_node(x, y, z):
 	var node = NODE.instance()
 	add_child(node)
@@ -206,6 +204,9 @@ func place_nodes(river_nodes):
 		place_node(nodes[id], side)
 		side = -1 if side == 1 else 1
 
+# ==============================================================================
+# Parse the HTML document looking for the title field and display the title
+# ==============================================================================
 func request_html_title(id, url):
 	var newHttp = HTTPRequest.new()
 	add_child(newHttp)
@@ -226,6 +227,9 @@ func request_html_title(id, url):
 	$Interface/Browser/TopBar/ColorRect/Title.text = title
 	remove_child(newHttp)
 
+# ==============================================================================
+# Make the moving sphere holds the given URL
+# ==============================================================================
 func assign_link_to_node(url, id, name):
 	var data = {}
 	data.url = url
@@ -239,12 +243,18 @@ func assign_link_to_node(url, id, name):
 	nodes_data[str(id)] = data
 	save_links()
 
+# ==============================================================================
+# Save URLs inside a json file
+# ==============================================================================
 func save_links():
 	var save_game = File.new()
 	save_game.open(SAVE_PATH, File.WRITE)
 	save_game.store_line(to_json(nodes_data))
 	save_game.close()
 
+# ==============================================================================
+# Load URLs inside from a json file
+# ==============================================================================
 func load_links():
 	var save_game = File.new()
 	if not save_game.file_exists(SAVE_PATH):
@@ -256,6 +266,9 @@ func load_links():
 		physicalNodes[int(key)].set_data(int(key), data.custom_name)
 	save_game.close()
 
+# ==============================================================================
+# Click on a moving sphere holding and URL
+# ==============================================================================
 func click_node(node_id):
 	current_node_id = node_id
 	if placing_node:
@@ -270,49 +283,124 @@ func click_node(node_id):
 	var url = Global.DEFAULT_SEARCH_ENGINE_URL
 	if nodes_data.has(str(node_id)):
 		url = nodes_data[str(node_id)].url
-	load_link(url)
+	load_link(url, "tab1") # FIXME constant name
 	if not "title" in nodes_data[str(node_id)]:
 		request_html_title(node_id, url)
 		$Interface/Browser/TopBar/ColorRect/Title.text = ""
 	else:
 		$Interface/Browser/TopBar/ColorRect/Title.text = nodes_data[str(node_id)].title
 
-func load_link(link):
-	cef.load_url(link)
-	var browser_size = $Interface/Browser/Panel.get_size()
-	$Interface/Browser/Panel/Texture.set_size(browser_size)
-	cef.reshape(browser_size.x, browser_size.y)
-	$Interface.visible = true
-	Global.enable_orbit_camera = false
+# ==============================================================================
+# Callback when the URL has been loaded
+# ==============================================================================
+func _on_page_loaded(node):
+	print("The browser " + node.name + " has loaded " + node.get_url())
+	#$Interface.visible = true
 
+# ==============================================================================
+# Create a new CEF browser and load the given URL.
+# param[in] link: the desired URL
+# param[in] name: the browser name
+# ==============================================================================
+func load_link(link : String, name : String):
+	# Set the page dimension
+	var size = $Interface/Browser/Panel.get_size()
+	$Interface/Browser/Panel/Texture.set_size(size)
+	# Create a new CEF browser and load the URL
+	current_tab = $CEF.create_browser(link, name, size.x, size.y)
+	# Make the CEF texture displayed by the node knowing how to do it
+	$Interface/Browser/Panel/Texture.texture = current_tab.get_texture()
+	$Interface.visible = true
+
+# ==============================================================================
+# Display the previously loaded page
+# ==============================================================================
 func browser_close():
 	$Interface.visible = false
-	Global.enable_orbit_camera = true
 
+# ==============================================================================
+# Display the previously loaded page
+# ==============================================================================
 func prev_node():
-	cef.navigate_back()
+	if current_tab != null:
+		current_tab.previous_page()
 
+# ==============================================================================
+# Display the next loaded page
+# ==============================================================================
 func next_node():
-	cef.navigate_forward()
+	if current_tab != null:
+		current_tab.next_page()
 
-func _process(_delta):
-	if not is_open or cef == null or not $Interface.visible:
-		return
-	cef.do_message_loop_work()
-	$Interface/Browser/Panel/Texture.texture = cef.get_texture()
+# ==============================================================================
+# Load the home page URL
+# ==============================================================================
+func home():
+	load_link(Global.DEFAULT_SEARCH_ENGINE_URL, "home")
 
+# ==============================================================================
+# Event whent the CEF is opened: load the home page.
+# ==============================================================================
 func _on_OpenBrowser_pressed():
-	load_link(Global.DEFAULT_SEARCH_ENGINE_URL)
+	home()
 
+# ==============================================================================
+# ??? Which button ?
+# ==============================================================================
 func _on_StigmarkButton_pressed():
 	$AutofillLinkPanel.visible = not $AutofillLinkPanel.visible
-	Global.enable_orbit_camera = not $AutofillLinkPanel.visible
 
+# ==============================================================================
+# The user has pressed on the Stigmark search button.
+# ==============================================================================
 func _on_StigmarkSearch_pressed():
 	var keyword = $AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text
 	if len(keyword) == 0:
 		return
-	stigmark.search_async(keyword)
+	$Stigmark.search_async(keyword)
 	$AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text = ""
-	Global.enable_orbit_camera = true
 	$AutofillLinkPanel.visible = false
+
+# ==============================================================================
+# The user has pressed on the Stigmark search button.
+# ==============================================================================
+func _on_Stigmark_on_search(collections):
+	for collection in collections:
+		var urls = collection.urls
+		for url in urls:
+			var id = get_next_empty_node_id()
+			if id != -1:
+				assign_link_to_node(url.uri, id, url.uri)
+			print(url)
+
+# ==============================================================================
+# Make the CEF browser reacts from mouse and keyboard events.
+# ==============================================================================
+func _unhandled_input(event):
+	if current_tab == null:
+		return
+	if event is InputEventKey:
+		if event.unicode != 0:
+			current_tab.on_key_pressed(event.unicode, event.pressed, event.shift, event.alt, event.control)
+		else:
+			current_tab.on_key_pressed(event.scancode, event.pressed, event.shift, event.alt, event.control)
+	if event.is_action_pressed("ui_cancel"):
+		if $Interface.visible:
+			browser_close()
+		else:
+			find_parent("SceneManager").switch_to_island()
+
+# ==============================================================================
+# "on update" event: allow or not the user to control the camera only when no
+# browser is displayed.
+# ==============================================================================
+func _process(_delta):
+	Global.enable_orbit_camera = $Interface.visible and not $AutofillLinkPanel.visible
+	pass
+
+# ==============================================================================
+# When leaving Godot, release CEF which will also release its browsers.
+# ==============================================================================
+func _on_Spatial_tree_exiting():
+	$CEF.shutdown()
+	print("CEF stopped")
