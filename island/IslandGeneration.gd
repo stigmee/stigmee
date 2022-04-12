@@ -1,6 +1,7 @@
 ###############################################################################
 ## Stigmee: The art to sanctuarize knowledge exchanges.
 ## Copyright 2021-2022 Corentin CAILLEAUD <corentin.cailleaud@caillef.com>
+## Copyright 2021-2022 Quentin Quadrat <lecrapouille@gmail.com>
 ##
 ## This file is part of Stigmee.
 ##
@@ -20,47 +21,54 @@
 
 extends Spatial
 
-const NB_CORNERS = 6
-const START_ANGLE = PI / 2
-const CORNER_RADIUS = 2 * PI / NB_CORNERS
-const NB_RINGS = 20
-const SCALE = 1
-const POLYGON_SCALE = 0.5
-
-const SPEED = 0
-
 const MAP_INTENSITY = 50 # height of mountains
 const MAP_PERIOD = 150 # size of mountains
 const MAP_PERSISTENCE = 0.5 # 0.1 = smooth, 1 = not smooth
 const ISLAND_SIZE = 200
 
-var DEFAULT_ZOOM = 5
-var is_open = false
-
+# ==============================================================================
+# "on init" event called by the SceneManager state machine.
+# Generate the island and initialize the GUI
+# ==============================================================================
 func load_scene():
 	build_island()
 	$Interface/StrandList.init()
 
+# ==============================================================================
+# Hide or make visible the node and its child nodes.
+# param[in] state: true to make visible. false to make invisible.
+# ==============================================================================
+func _set_visibility(state : bool):
+	self.visible = state
+	for child in get_children():
+		child.visible = state
+
+# ==============================================================================
+# "on entering" event called by the SceneManager state machine.
+# param[in] _data pass extra information (not used).
+# ==============================================================================
 func open_scene(_data):
-	is_open = true
-	self.visible = true
-	for child in get_children():
-		child.visible = true
-	#get_parent().get_node("OrbitCamera").set_zoom(DEFAULT_ZOOM)
+	_set_visibility(true)
 
+# ==============================================================================
+# "on leaving" event called by the SceneManager state machine.
+# ==============================================================================
 func close_scene():
-	is_open = false
-	self.visible = false
-	for child in get_children():
-		child.visible = false
+	_set_visibility(false)
 
+# ==============================================================================
+#
+# ==============================================================================
 func gradientAtPos(pos):
-	return pos.length() / (ISLAND_SIZE * sqrt(2))
+	return pos.length() / (ISLAND_SIZE * sqrt(2.0))
 
+# ==============================================================================
+#
+# ==============================================================================
 func generate():
-	var noise = OpenSimplexNoise.new()
 	var rng = RandomNumberGenerator.new()
 	rng.randomize()
+	var noise = OpenSimplexNoise.new()
 	var seedValue = rng.randi_range(0, 1000)
 	noise.seed = seedValue
 	noise.period = MAP_PERIOD
@@ -97,5 +105,8 @@ func generate():
 
 	$GeneratedIsland.mesh = surface_tool.commit()
 
+# ==============================================================================
+#
+# ==============================================================================
 func build_island():
 	generate()
