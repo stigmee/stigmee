@@ -12,12 +12,12 @@ _global_script_classes=[ {
 "base": "",
 "class": "GDCef",
 "language": "NativeScript",
-"path": "res://gdcef.gdns"
+"path": "res://libs/gdcef.gdns"
 }, {
 "base": "",
 "class": "Stigmark",
 "language": "NativeScript",
-"path": "res://stigmark.gdns"
+"path": "res://libs/stigmark.gdns"
 } ]
 _global_script_class_icons={
 "GDCef": "",
