@@ -20,8 +20,8 @@
 ###############################################################################
 
 # ==============================================================================
-# State machine memorizing the current activate Godot Spatial node. It calls
-# load_scene() when at init, calls close_scene() when the current node is no
+# State machine memorizing the current activated Godot scene. It calls
+# load_scene() at init, calls close_scene() when the current scene is no
 # longer active and calls the open_scene() when the new node is activated.
 # ==============================================================================
 extends Spatial
@@ -31,44 +31,47 @@ var current_scene = null
 
 # ==============================================================================
 # Close the current scene (state machine "on leaving" event) and load the new
-# scene ("on entering" event).
+# scene (state machine "on entering" event).
 # param[in] new_scene: the desired Godot Spatial node to be active.
 # param[in] data: extra information.
 # ==============================================================================
 func set_scene(new_scene, data={}):
 	assert(new_scene != null)
+	# The newlys scene is the one already active
 	if new_scene == current_scene:
 		return
+	# Similar to state machine "on leaving" event.
 	if current_scene != null:
 		current_scene.close_scene()
 		print("Scene closed: " + current_scene.name)
+	# Similar to state machine "on entering" event.
 	current_scene = new_scene
 	current_scene.open_scene(data)
 	print("Scene opened: " + current_scene.name)
 
 # ==============================================================================
-# Switch to the Scene displaying islands.
+# Load all scenes (child nodes) and show the island scene.
 # ==============================================================================
 func _ready():
-	var scenes = [$Island, $Strand]
-	for scene in scenes:
+	# Load all scenes (FIXME in lazy mode)
+	for scene in get_children():
+		scene.set_visibility(false)
 		scene.load_scene()
-		scene.close_scene()
+	# Initial scene
 	switch_to_island()
-#	switch_to_strand(1)
 
 # ==============================================================================
 # Switch to the Scene displaying islands.
 # ==============================================================================
 func switch_to_island():
-	set_scene($Island)
+	set_scene($IslandScene)
 
 # ==============================================================================
 # Switch to the Scene displaying Stigmark strand.
 # param[in] strand_id the strand intifier (integer).
 # ==============================================================================
 func switch_to_strand(strand_id):
-	set_scene($Strand, { "strand_id": strand_id })
+	set_scene($StrandScene, { "strand_id": strand_id })
 
 func quit():
 	pass
