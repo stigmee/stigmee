@@ -27,7 +27,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Stigmee"
-run/main_scene="res://island/Island.tscn"
+run/main_scene="res://Stigmee.tscn"
 boot_splash/image="res://theme/bootsplash.png"
 config/icon="res://theme/icon.png"
 config/windows_native_icon="res://theme/icon.ico"

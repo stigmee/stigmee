@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://strand/interface/SaveLinkBtn.gd" type="Script" id=1]
-[ext_resource path="res://theme/default_theme.tres" type="Theme" id=2]
-[ext_resource path="res://strand/interface/BrowserController.gd" type="Script" id=3]
+[ext_resource path="res://theme/default_theme.tres" type="Theme" id=1]
+[ext_resource path="res://scripts/strand/interface/SaveLinkBtn.gd" type="Script" id=2]
+[ext_resource path="res://scripts/strand/interface/BrowserController.gd" type="Script" id=3]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
@@ -14,15 +14,12 @@ void fragment(){
 [sub_resource type="ShaderMaterial" id=2]
 shader = SubResource( 1 )
 
-[node name="Interface" type="Control"]
+[node name="CEFBrowserGUI" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = -1.7818
 margin_right = -1.78174
 mouse_filter = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Browser" type="VBoxContainer" parent="."]
 anchor_left = 0.5
@@ -34,9 +31,6 @@ margin_top = -1047.0
 margin_right = 875.0
 margin_bottom = -2.0
 script = ExtResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="TopBar" type="NinePatchRect" parent="Browser"]
 margin_right = 1742.0
@@ -96,7 +90,7 @@ margin_right = 100.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 100, 0 )
 text = "Save Link"
-script = ExtResource( 1 )
+script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -129,7 +123,7 @@ __meta__ = {
 [node name="Title" type="Label" parent="Browser/TopBar/ColorRect"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 2 )
+theme = ExtResource( 1 )
 text = "Title"
 align = 1
 valign = 1
@@ -190,7 +184,7 @@ margin_bottom = 30.0
 margin_right = 210.0
 margin_bottom = 30.0
 rect_min_size = Vector2( 210, 30 )
-theme = ExtResource( 2 )
+theme = ExtResource( 1 )
 text = "Name of the resource"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -212,7 +206,7 @@ margin_left = 119.0
 margin_right = 394.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 70, 40 )
-theme = ExtResource( 2 )
+theme = ExtResource( 1 )
 text = "Place Resource on the Strand"
 
 [connection signal="pressed" from="Browser/TopBar/TopBarLeft/Prev" to="Browser" method="_on_Prev_pressed"]
