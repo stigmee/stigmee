@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://strand/interface/SaveLinkBtn.gd" type="Script" id=1]
-[ext_resource path="res://theme/default_theme.tres" type="Theme" id=2]
-[ext_resource path="res://strand/interface/BrowserController.gd" type="Script" id=3]
+[ext_resource path="res://scenes/Browser/BrowserController.gd" type="Script" id=1]
+[ext_resource path="res://theme/default_theme.tres" type="Theme" id=3]
+[ext_resource path="res://libs/gdcef.gdns" type="Script" id=4]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
@@ -14,43 +14,44 @@ void fragment(){
 [sub_resource type="ShaderMaterial" id=2]
 shader = SubResource( 1 )
 
-[node name="Interface" type="Control"]
+[node name="CEFBrowserGUI" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = -1.7818
 margin_right = -1.78174
 mouse_filter = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
+script = ExtResource( 1 )
 
-[node name="Browser" type="VBoxContainer" parent="."]
+[node name="CEF" type="Spatial" parent="."]
+script = ExtResource( 4 )
+
+[node name="Interface" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Interface"]
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -867.0
-margin_top = -1047.0
-margin_right = 875.0
-margin_bottom = -2.0
-script = ExtResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+margin_left = 73.0001
+margin_top = -7.0
+margin_right = 1815.0
+margin_bottom = 1038.0
 
-[node name="TopBar" type="NinePatchRect" parent="Browser"]
-margin_right = 1742.0
+[node name="TopBar" type="NinePatchRect" parent="Interface/VBoxContainer"]
+margin_right = 1741.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 0, 40 )
 
-[node name="TopBarLeft" type="HBoxContainer" parent="Browser/TopBar"]
+[node name="TopBarLeft" type="HBoxContainer" parent="Interface/VBoxContainer/TopBar"]
 anchor_bottom = 1.0
 margin_right = 134.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Prev" type="Button" parent="Browser/TopBar/TopBarLeft"]
+[node name="Prev" type="Button" parent="Interface/VBoxContainer/TopBar/TopBarLeft"]
 margin_right = 40.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 40, 0 )
@@ -59,7 +60,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Next" type="Button" parent="Browser/TopBar/TopBarLeft"]
+[node name="Next" type="Button" parent="Interface/VBoxContainer/TopBar/TopBarLeft"]
 margin_left = 44.0
 margin_right = 84.0
 margin_bottom = 40.0
@@ -69,7 +70,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Home" type="Button" parent="Browser/TopBar/TopBarLeft"]
+[node name="Home" type="Button" parent="Interface/VBoxContainer/TopBar/TopBarLeft"]
 margin_left = 88.0
 margin_right = 148.0
 margin_bottom = 40.0
@@ -81,27 +82,23 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="TopBarRight" type="HBoxContainer" parent="Browser/TopBar"]
+[node name="TopBarRight" type="HBoxContainer" parent="Interface/VBoxContainer/TopBar"]
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = -144.0
 alignment = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="SaveLinkBtn" type="Button" parent="Browser/TopBar/TopBarRight"]
+[node name="SaveLinkBtn" type="Button" parent="Interface/VBoxContainer/TopBar/TopBarRight"]
 margin_right = 100.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 100, 0 )
 text = "Save Link"
-script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Close" type="Button" parent="Browser/TopBar/TopBarRight"]
+[node name="Close" type="Button" parent="Interface/VBoxContainer/TopBar/TopBarRight"]
 margin_left = 104.0
 margin_right = 144.0
 margin_bottom = 40.0
@@ -111,7 +108,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ColorRect" type="ColorRect" parent="Browser/TopBar"]
+[node name="ColorRect" type="ColorRect" parent="Interface/VBoxContainer/TopBar"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -126,10 +123,10 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Title" type="Label" parent="Browser/TopBar/ColorRect"]
+[node name="Title" type="Label" parent="Interface/VBoxContainer/TopBar/ColorRect"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 2 )
+theme = ExtResource( 3 )
 text = "Title"
 align = 1
 valign = 1
@@ -139,21 +136,18 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Panel" type="Panel" parent="Browser"]
+[node name="Panel" type="Panel" parent="Interface/VBoxContainer"]
 material = SubResource( 2 )
 margin_top = 44.0
-margin_right = 1742.0
+margin_right = 1741.0
 margin_bottom = 1045.0
 size_flags_vertical = 3
 
-[node name="Texture" type="TextureRect" parent="Browser/Panel"]
+[node name="Texture" type="TextureRect" parent="Interface/VBoxContainer/Panel"]
 margin_right = 1347.0
 margin_bottom = 1006.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="RenameLinkPanel" type="Panel" parent="."]
 anchor_left = 0.5
@@ -164,9 +158,6 @@ margin_left = -290.0
 margin_top = -60.5
 margin_right = 290.0
 margin_bottom = 60.5
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="VBoxContainer" type="VBoxContainer" parent="RenameLinkPanel"]
 anchor_left = 0.5
@@ -178,9 +169,6 @@ margin_top = -32.0
 margin_right = 257.0
 margin_bottom = 32.0
 alignment = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="HBoxContainer" type="HBoxContainer" parent="RenameLinkPanel/VBoxContainer"]
 margin_right = 514.0
@@ -190,7 +178,7 @@ margin_bottom = 30.0
 margin_right = 210.0
 margin_bottom = 30.0
 rect_min_size = Vector2( 210, 30 )
-theme = ExtResource( 2 )
+theme = ExtResource( 3 )
 text = "Name of the resource"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -207,18 +195,18 @@ margin_top = 34.0
 margin_right = 514.0
 margin_bottom = 74.0
 
-[node name="Button" type="Button" parent="RenameLinkPanel/VBoxContainer/CenterContainer"]
+[node name="SaveResourceButton" type="Button" parent="RenameLinkPanel/VBoxContainer/CenterContainer"]
 margin_left = 119.0
 margin_right = 394.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 70, 40 )
-theme = ExtResource( 2 )
+theme = ExtResource( 3 )
 text = "Place Resource on the Strand"
 
-[connection signal="pressed" from="Browser/TopBar/TopBarLeft/Prev" to="Browser" method="_on_Prev_pressed"]
-[connection signal="pressed" from="Browser/TopBar/TopBarLeft/Next" to="Browser" method="_on_Next_pressed"]
-[connection signal="pressed" from="Browser/TopBar/TopBarLeft/Home" to="Browser" method="_on_Home_pressed"]
-[connection signal="pressed" from="Browser/TopBar/TopBarRight/SaveLinkBtn" to="Browser/TopBar/TopBarRight/SaveLinkBtn" method="_on_SaveLinkBtn_pressed"]
-[connection signal="pressed" from="Browser/TopBar/TopBarRight/Close" to="Browser" method="_on_Close_pressed"]
-[connection signal="gui_input" from="Browser/Panel/Texture" to="Browser" method="_on_Texture_gui_input"]
-[connection signal="pressed" from="RenameLinkPanel/VBoxContainer/CenterContainer/Button" to="Browser/TopBar/TopBarRight/SaveLinkBtn" method="_on_Button_pressed"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarLeft/Prev" to="." method="_on_Prev_pressed"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarLeft/Next" to="." method="_on_Next_pressed"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarLeft/Home" to="." method="_on_Home_pressed"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarRight/SaveLinkBtn" to="." method="_on_SaveLinkBtn_pressed"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarRight/Close" to="." method="_on_Close_pressed"]
+[connection signal="gui_input" from="Interface/VBoxContainer/Panel/Texture" to="." method="_on_Texture_gui_input"]
+[connection signal="pressed" from="RenameLinkPanel/VBoxContainer/CenterContainer/SaveResourceButton" to="." method="_on_SaveResourceButton_pressed"]

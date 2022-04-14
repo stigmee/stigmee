@@ -1,7 +1,6 @@
 ###############################################################################
 ## Stigmee: The art to sanctuarize knowledge exchanges.
 ## Copyright 2021-2022 Corentin CAILLEAUD <corentin.cailleaud@caillef.com>
-## Copyright 2021-2022 Quentin Quadrat <lecrapouille@gmail.com>
 ##
 ## This file is part of Stigmee.
 ##
@@ -19,56 +18,59 @@
 ## along with this program.  If not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-extends Spatial
+extends Node
 
-const MAP_INTENSITY = 50 # height of mountains
-const MAP_PERIOD = 150 # size of mountains
+const NB_CORNERS = 6
+const START_ANGLE = PI / 2
+const CORNER_RADIUS = 2 * PI / NB_CORNERS
+const NB_RINGS = 50
+const SCALE = 3
+
+const SPEED = 0
+
+const MAP_INTENSITY = 20 # height of mountains
+const MAP_PERIOD = 100 # size of mountains
 const MAP_PERSISTENCE = 0.5 # 0.1 = smooth, 1 = not smooth
 const ISLAND_SIZE = 200
 
-# ==============================================================================
-# "on init" event called by the SceneManager state machine.
-# Generate the island and initialize the GUI
-# ==============================================================================
-func load_scene():
-	build_island()
-	$Interface/StrandList.init()
+var st
+var vertexes = []
+var m
+
+const RIVER_CIRCLES = []
+const RIVER_LENGTH = 150
+const RIVER_RADIUS = 3
+const RIVER_AMPLITUDE_Y = 4
 
 # ==============================================================================
-# Hide or make visible the node and its child nodes.
-# param[in] state: true to make visible. false to make invisible.
+# 
 # ==============================================================================
-func _set_visibility(state : bool):
-	self.visible = state
-	for child in get_children():
-		child.visible = state
+func init():
+	generate_river(RIVER_LENGTH, RIVER_RADIUS)
+	generate()
+	pass
 
 # ==============================================================================
-# "on entering" event called by the SceneManager state machine.
-# param[in] _data pass extra information (not used).
+# 
 # ==============================================================================
-func open_scene(_data):
-	_set_visibility(true)
+func generate_river(size, radius):
+	RIVER_CIRCLES.clear()
+	var half_size = size / 2
+	var x = -half_size + 10
+	var r = radius
+	while x < half_size:
+		var pos2 = Vector2(x,0)
+		RIVER_CIRCLES.append({ pos=pos2, radius=r })
+		x += r / 2
+	pass
 
 # ==============================================================================
-# "on leaving" event called by the SceneManager state machine.
-# ==============================================================================
-func close_scene():
-	_set_visibility(false)
-
-# ==============================================================================
-#
-# ==============================================================================
-func gradientAtPos(pos):
-	return pos.length() / (ISLAND_SIZE * sqrt(2.0))
-
-# ==============================================================================
-#
+# 
 # ==============================================================================
 func generate():
+	var noise = OpenSimplexNoise.new()
 	var rng = RandomNumberGenerator.new()
 	rng.randomize()
-	var noise = OpenSimplexNoise.new()
 	var seedValue = rng.randi_range(0, 1000)
 	noise.seed = seedValue
 	noise.period = MAP_PERIOD
@@ -90,23 +92,31 @@ func generate():
 
 	for i in range(data_tool.get_vertex_count()):
 		var vertex = data_tool.get_vertex(i)
-		var noiseValue = noise.get_noise_3d(vertex.x, vertex.y, vertex.z)
-		vertex.y = (noiseValue - gradientAtPos(vertex)) * MAP_INTENSITY
-		
+		var pos = Vector2(vertex.x,vertex.z)
+		vertex.y = (noise.get_noise_3d(vertex.x, vertex.y, vertex.z)+0.5) * MAP_INTENSITY
+		var found = false
+		if vertex.z >= -5 and vertex.z <= 5:
+			vertex.y -= 2
+		for circ in RIVER_CIRCLES:
+			if not found and pos.distance_to(circ.pos) < circ.radius:
+				found = true
+				circ.realPos = vertex
+
 		data_tool.set_vertex(i, vertex)
 	
 	for i in range(array_plane.get_surface_count()):
 		array_plane.surface_remove(i)
-	
+
 	data_tool.commit_to_surface(array_plane)
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	surface_tool.create_from(array_plane, 0)
 	surface_tool.generate_normals()
 
-	$GeneratedIsland.mesh = surface_tool.commit()
+	$GeneratedStrands.mesh = surface_tool.commit()
+	pass
 
 # ==============================================================================
-#
+# 
 # ==============================================================================
-func build_island():
-	generate()
+func get_river():
+	return RIVER_CIRCLES

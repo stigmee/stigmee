@@ -1,0 +1,65 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://theme/default_theme.tres" type="Theme" id=1]
+[ext_resource path="res://scenes/URL/node_material.tres" type="Material" id=2]
+[ext_resource path="res://scenes/URL/Viewport.tres" type="Texture" id=3]
+[ext_resource path="res://scenes/URL/URL.gd" type="Script" id=4]
+[ext_resource path="res://theme/add.png" type="Texture" id=5]
+[ext_resource path="res://theme/node_resizable_font.tres" type="DynamicFont" id=6]
+
+[sub_resource type="SphereShape" id=1]
+radius = 1.027
+
+[node name="URL" type="Spatial"]
+script = ExtResource( 4 )
+
+[node name="Area" type="Area" parent="."]
+transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Area"]
+shape = SubResource( 1 )
+
+[node name="Viewport" type="Viewport" parent="."]
+size = Vector2( 200, 200 )
+transparent_bg = true
+gui_disable_input = true
+
+[node name="NodeText" type="Control" parent="Viewport"]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="Icon" type="Sprite" parent="Viewport/NodeText"]
+position = Vector2( 100, 121.993 )
+scale = Vector2( 0.02, 0.02 )
+texture = ExtResource( 5 )
+
+[node name="Label" type="Label" parent="Viewport/NodeText"]
+margin_top = 26.0
+margin_right = 200.0
+margin_bottom = 95.0
+theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = ExtResource( 6 )
+align = 1
+valign = 2
+autowrap = true
+max_lines_visible = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Sprite" type="Sprite3D" parent="."]
+transform = Transform( 2.69655, 0, 0, 0, 2.69655, 0, 0, 0, 0.5, -0.00922346, 0.64373, 0.00590944 )
+flip_v = true
+billboard = 1
+texture = ExtResource( 3 )
+
+[node name="Sphere" type="CSGSphere" parent="."]
+radius = 0.25
+radial_segments = 25
+rings = 25
+material = ExtResource( 2 )
+
+[connection signal="input_event" from="Area" to="." method="_on_Area_input_event"]
+[connection signal="mouse_entered" from="Area" to="." method="_on_Area_mouse_entered"]
+[connection signal="mouse_exited" from="Area" to="." method="_on_Area_mouse_exited"]

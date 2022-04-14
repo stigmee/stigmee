@@ -1,0 +1,5 @@
+Version 0.2.0:
+	* Rework Caillef's work: simplify the scene graph, rework folders and update the gscript in consequence.
+
+Version 0.1.0:
+	* Initial version for the 1st minimal valid product (MVP) made by Caillef.
