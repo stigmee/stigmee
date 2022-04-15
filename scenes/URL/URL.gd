@@ -30,14 +30,14 @@ var offset
 var FLOATING_INVERSE_AMPLITUDE = 15 # high = low amplitude
 var PLUS_HOVER_SCALING = 1.6
 
-const hover_material = preload("res://strand/Node/node_hover_material.tres")
+const hover_material = preload("res://scenes/URL/node_hover_material.tres")
 
 var rng
 
 var hovered = false
 
 func _ready():
-	strand = find_parent("Strand")
+	strand = find_parent("StrandScene")
 	label = find_node("Label")
 	icon = find_node("Icon")
 	rng = RandomNumberGenerator.new()

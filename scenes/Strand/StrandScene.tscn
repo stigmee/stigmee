@@ -1,13 +1,12 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://scenes/CEF/CEFBrowserGUI.tscn" type="PackedScene" id=1]
-[ext_resource path="res://scenes/island/Generation.tscn" type="PackedScene" id=2]
-[ext_resource path="res://scripts/strand/StrandManager.gd" type="Script" id=3]
-[ext_resource path="res://scripts/strand/StrandGeneration.gd" type="Script" id=4]
-[ext_resource path="res://scenes/stigmark/Stigmark.tscn" type="PackedScene" id=5]
-[ext_resource path="res://theme/default_theme.tres" type="Theme" id=6]
+[ext_resource path="res://libs/stigmark.gdns" type="Script" id=1]
+[ext_resource path="res://scenes/Strand/StrandManager.gd" type="Script" id=2]
+[ext_resource path="res://theme/default_theme.tres" type="Theme" id=3]
+[ext_resource path="res://scenes/Strand/StrandGeneration.gd" type="Script" id=4]
+[ext_resource path="res://scenes/Browser/BrowserScene.tscn" type="PackedScene" id=5]
 
-[sub_resource type="Shader" id=1]
+[sub_resource type="Shader" id=7]
 code = "shader_type spatial;
 render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx;
 uniform vec4 albedo : hint_color;
@@ -41,8 +40,8 @@ void fragment() {
 }
 "
 
-[sub_resource type="ShaderMaterial" id=2]
-shader = SubResource( 1 )
+[sub_resource type="ShaderMaterial" id=8]
+shader = SubResource( 7 )
 shader_param/albedo = Color( 0.101961, 0.54902, 0.109804, 1 )
 shader_param/specular = 0.5
 shader_param/metallic = 0.0
@@ -56,14 +55,68 @@ shader_param/grass_color = Vector3( 0, 0.2, 0 )
 shader_param/water_color = Vector3( 0, 0.1, 0.8 )
 
 [node name="Strand" type="Spatial"]
-script = ExtResource( 3 )
+script = ExtResource( 2 )
+
+[node name="Generator" type="Spatial" parent="."]
+script = ExtResource( 4 )
+
+[node name="GeneratedStrands" type="MeshInstance" parent="Generator"]
+material_override = SubResource( 8 )
+skeleton = NodePath("../..")
+
+[node name="Stigmark" type="Spatial" parent="."]
+script = ExtResource( 1 )
+
+[node name="HTTPRequest" type="HTTPRequest" parent="Stigmark"]
+
+[node name="Menu" type="Control" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -136.0
+margin_top = -104.0
+margin_right = 136.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Menu"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -240.5
+margin_right = 240.5
+margin_bottom = 40.0
+
+[node name="OpenBrowser" type="Button" parent="Menu/HBoxContainer"]
+margin_right = 130.0
+margin_bottom = 40.0
+focus_mode = 0
+theme = ExtResource( 3 )
+enabled_focus_mode = 0
+text = "Web Browser"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VSeparator" type="VSeparator" parent="Menu/HBoxContainer"]
+margin_left = 134.0
+margin_right = 144.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 10, 0 )
+
+[node name="StigmarkButton" type="Button" parent="Menu/HBoxContainer"]
+margin_left = 148.0
+margin_right = 481.0
+margin_bottom = 40.0
+focus_mode = 0
+theme = ExtResource( 3 )
+enabled_focus_mode = 0
+text = "Add URLs from Stigmark collections"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Hint" type="Control" parent="."]
 anchor_right = 1.0
 margin_bottom = 162.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="HintAddResource" type="CenterContainer" parent="Hint"]
 anchor_right = 1.0
@@ -80,7 +133,7 @@ margin_bottom = 111.0
 rect_min_size = Vector2( 400, 60 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
-theme = ExtResource( 6 )
+theme = ExtResource( 3 )
 text = "  Click on a + sign to place your Resource.
 Click on an existing Resource to replace it."
 
@@ -93,9 +146,6 @@ margin_left = -290.0
 margin_top = -60.5
 margin_right = 290.0
 margin_bottom = 60.5
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="VBoxContainer" type="VBoxContainer" parent="AutofillLinkPanel"]
 anchor_left = 0.5
@@ -119,7 +169,7 @@ margin_bottom = 30.0
 margin_right = 280.0
 margin_bottom = 30.0
 rect_min_size = Vector2( 280, 30 )
-theme = ExtResource( 6 )
+theme = ExtResource( 3 )
 text = "Keyword (bitcoin, mysql, ...)"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -141,73 +191,12 @@ margin_left = 29.0
 margin_right = 485.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 70, 40 )
-theme = ExtResource( 6 )
+theme = ExtResource( 3 )
 text = "Fill strand with URLs associated with this keyword"
 
-[node name="Menu" type="Control" parent="."]
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -136.0
-margin_top = -104.0
-margin_right = 136.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="BrowserGUI" parent="." instance=ExtResource( 5 )]
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Menu"]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -240.5
-margin_right = 240.5
-margin_bottom = 40.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="OpenBrowser" type="Button" parent="Menu/HBoxContainer"]
-margin_right = 130.0
-margin_bottom = 40.0
-focus_mode = 0
-theme = ExtResource( 6 )
-enabled_focus_mode = 0
-text = "Web Browser"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="VSeparator" type="VSeparator" parent="Menu/HBoxContainer"]
-margin_left = 134.0
-margin_right = 144.0
-margin_bottom = 40.0
-rect_min_size = Vector2( 10, 0 )
-
-[node name="StigmarkButton" type="Button" parent="Menu/HBoxContainer"]
-margin_left = 148.0
-margin_right = 481.0
-margin_bottom = 40.0
-focus_mode = 0
-theme = ExtResource( 6 )
-enabled_focus_mode = 0
-text = "Add URLs from Stigmark collections"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Interface" parent="." instance=ExtResource( 1 )]
-
-[node name="StrandGeneration" parent="." instance=ExtResource( 2 )]
-script = ExtResource( 4 )
-
-[node name="Stigmark" parent="." instance=ExtResource( 5 )]
-
-[node name="HTTPRequest" type="HTTPRequest" parent="Stigmark"]
-
-[node name="GeneratedStrand" type="MeshInstance" parent="."]
-material_override = SubResource( 2 )
-
-[connection signal="pressed" from="AutofillLinkPanel/VBoxContainer/CenterContainer/StigmarkSearch" to="." method="_on_StigmarkSearch_pressed"]
+[connection signal="on_search" from="Stigmark" to="." method="_on_Stigmark_on_search"]
 [connection signal="pressed" from="Menu/HBoxContainer/OpenBrowser" to="." method="_on_OpenBrowser_pressed"]
 [connection signal="pressed" from="Menu/HBoxContainer/StigmarkButton" to="." method="_on_StigmarkButton_pressed"]
-[connection signal="on_search" from="Stigmark" to="." method="_on_Stigmark_on_search"]
+[connection signal="pressed" from="AutofillLinkPanel/VBoxContainer/CenterContainer/StigmarkSearch" to="." method="_on_StigmarkSearch_pressed"]

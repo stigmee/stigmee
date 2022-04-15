@@ -1,15 +1,15 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://scenes/strand/Node/NodeText.tscn" type="PackedScene" id=1]
-[ext_resource path="res://scenes/strand/Node/node_material.tres" type="Material" id=2]
-[ext_resource path="res://scenes/strand/Node/Node.gd" type="Script" id=3]
-[ext_resource path="res://scenes/strand/Node/Viewport.tres" type="Texture" id=4]
+[ext_resource path="res://scenes/URL/NodeText.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scenes/URL/node_material.tres" type="Material" id=2]
+[ext_resource path="res://scenes/URL/Viewport.tres" type="Texture" id=3]
+[ext_resource path="res://scenes/URL/URL.gd" type="Script" id=4]
 
 [sub_resource type="SphereShape" id=1]
 radius = 1.027
 
-[node name="Node" type="Spatial"]
-script = ExtResource( 3 )
+[node name="URL" type="Spatial"]
+script = ExtResource( 4 )
 
 [node name="Area" type="Area" parent="."]
 transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0 )
@@ -28,7 +28,7 @@ gui_disable_input = true
 transform = Transform( 2.69655, 0, 0, 0, 2.69655, 0, 0, 0, 0.5, -0.00922346, 0.64373, 0.00590944 )
 flip_v = true
 billboard = 1
-texture = ExtResource( 4 )
+texture = ExtResource( 3 )
 
 [node name="Sphere" type="CSGSphere" parent="."]
 radius = 0.25

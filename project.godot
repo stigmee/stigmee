@@ -34,7 +34,7 @@ config/windows_native_icon="res://theme/icon.ico"
 
 [autoload]
 
-Global="*res://scripts/Global.gd"
+Global="*res://scripts/Globals.gd"
 
 [display]
 
