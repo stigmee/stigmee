@@ -1,0 +1,22 @@
+@startuml
+
+[*] --> Ready
+
+Ready: on entering:\n  - generate island\n  - generate strands\n  - hide the scene
+
+IslandScene : on entering:\n  - show the scene
+IslandScene : on leaving:\n  - hide the scene
+
+StrandScene : on entering:\n  - show the scene
+StrandScene : on leaving:\n  - hide the scene
+
+Browser : on entering:\n  - show the browser GUI\n  - load the document
+Browser : on leaving:\n  - stop loading the document\n  - hide the browser GUI
+
+Ready --> IslandScene
+IslandScene -> StrandScene : the user clicked on\nIsland strand list button
+StrandScene -> Browser : the user clicked on\nURL (moving spheres)
+Browser --> StrandScene : the user closed\nthe browser or\nsaved the URL
+StrandScene --> IslandScene : the user pressed\n'ESCAPE' key
+
+@enduml

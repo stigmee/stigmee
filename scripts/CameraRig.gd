@@ -180,7 +180,7 @@ func handle_keyboard_actions(dt):
 # world. This can be used for example to reach the browser node when typing
 # its name in a search entry widget.
 # We only need to access to the transform field of the tracked object but
-# since Godot passes them by value we can use them directly. Therefore we 
+# since Godot passes them by value we can use them directly. Therefore we
 # directly hold Spatial ... since Godot passes it by reference.
 # ==============================================================================
 func track(object: Spatial):
