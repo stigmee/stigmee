@@ -104,11 +104,8 @@ func clear_nodes():
 # Connect signals of the browser GUI to functions
 # ==============================================================================
 func init_events():
-#	var browser_controller = $Interface/Browser
-#	for event in BROWSER_EVENTS:
-#		browser_controller.connect(event, self, event)
-#	var save_link_btn = find_node("SaveLinkBtn")
-#	save_link_btn.connect("save_link", self, "save_link")
+	var save_link_btn = find_node("SaveLinkBtn")
+	save_link_btn.connect("save_link", self, "save_link")
 	pass
 
 # ==============================================================================
@@ -193,7 +190,7 @@ func request_html_title(id, url):
 	nodes_data[str(id)].title = title
 	if nodes_data[str(id)].custom_name == FETCHING_TITLE_PLACEHOLDER:
 		assign_link_to_node(url, id, title.substr(0, 15))
-	$Interface/Browser/TopBar/ColorRect/Title.text = title
+	$BrowserGUI/Interface/VBoxContainer/TopBar/ColorRect/Title.text = title
 	remove_child(newHttp)
 	pass
 

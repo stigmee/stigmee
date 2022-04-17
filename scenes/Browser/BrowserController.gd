@@ -65,7 +65,6 @@ func _unhandled_input(event):
 func browser_event(event):
 	if current_tab == null:
 		return
-
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_WHEEL_UP:
 			current_tab.on_mouse_wheel(5)
@@ -89,11 +88,17 @@ func browser_event(event):
 				current_tab.on_mouse_middle_down()
 			else:
 				current_tab.on_mouse_middle_up()
-
 	elif event is InputEventMouseMotion:
 		if mouse_pressed == true :
 			current_tab.on_mouse_left_down()
 		current_tab.on_mouse_moved(event.position.x, event.position.y)
+	pass
+
+# ==============================================================================
+# Make the CEF browser reacts from mouse and keyboard events.
+# ==============================================================================
+func _on_Texture_gui_input(event):
+	browser_event(event)
 	pass
 
 # ==============================================================================
@@ -128,11 +133,25 @@ func browser_close():
 	pass
 
 # ==============================================================================
+# GUI button event.
+# ==============================================================================
+func _on_Close_pressed():
+	browser_close()
+	pass
+
+# ==============================================================================
 # Display the previously loaded page
 # ==============================================================================
 func prev_node():
 	if current_tab != null:
 		current_tab.previous_page()
+	pass
+
+# ==============================================================================
+# GUI button event.
+# ==============================================================================
+func _on_Prev_pressed():
+	prev_node()
 	pass
 
 # ==============================================================================
@@ -144,24 +163,22 @@ func next_node():
 	pass
 
 # ==============================================================================
+# GUI button event.
+# ==============================================================================
+func _on_Next_pressed():
+	next_node()
+	pass
+
+# ==============================================================================
 # Load the home page URL
 # ==============================================================================
 func home():
 	load_link(Global.DEFAULT_SEARCH_ENGINE_URL, "home")
 	pass
-	
-func _on_Close_pressed():
-	browser_close()
-	pass
 
-func _on_Prev_pressed():
-	prev_node()
-	pass
-
-func _on_Next_pressed():
-	next_node()
-	pass
-
+# ==============================================================================
+# GUI button event.
+# ==============================================================================
 func _on_Home_pressed():
 	home()
 	pass
@@ -173,10 +190,9 @@ func _on_OpenBrowser_pressed():
 	home()
 	pass
 
-func _on_Texture_gui_input(event):
-	emit_signal("browser_event", event)
-	pass
-
+# ==============================================================================
+# GUI button event.
+# ==============================================================================
 func _on_ResourceButton_pressed():
 	var name = new_name_input.text
 	if name.length() == 0:
@@ -185,6 +201,9 @@ func _on_ResourceButton_pressed():
 	$RenameLinkPanel.visible = false
 	pass
 
+# ==============================================================================
+# GUI button event.
+# ==============================================================================
 func _on_SaveLinkBtn_pressed():
 	new_name_input.text = ""
 	new_name_input.grab_focus()

@@ -40,7 +40,7 @@ margin_right = 1815.0
 margin_bottom = 1038.0
 
 [node name="TopBar" type="NinePatchRect" parent="Interface/VBoxContainer"]
-margin_right = 1742.0
+margin_right = 1741.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 0, 40 )
 
@@ -142,7 +142,7 @@ __meta__ = {
 [node name="Panel" type="Panel" parent="Interface/VBoxContainer"]
 material = SubResource( 2 )
 margin_top = 44.0
-margin_right = 1742.0
+margin_right = 1741.0
 margin_bottom = 1045.0
 size_flags_vertical = 3
 
@@ -151,9 +151,6 @@ margin_right = 1347.0
 margin_bottom = 1006.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="RenameLinkPanel" type="Panel" parent="."]
 anchor_left = 0.5
@@ -209,10 +206,10 @@ rect_min_size = Vector2( 70, 40 )
 theme = ExtResource( 3 )
 text = "Place Resource on the Strand"
 
-[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarLeft/Prev" to="Interface/VBoxContainer" method="_on_Prev_pressed"]
-[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarLeft/Next" to="Interface/VBoxContainer" method="_on_Next_pressed"]
-[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarLeft/Home" to="Interface/VBoxContainer" method="_on_Home_pressed"]
-[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarRight/SaveLinkBtn" to="Interface/VBoxContainer/TopBar/TopBarRight/SaveLinkBtn" method="_on_SaveLinkBtn_pressed"]
-[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarRight/Close" to="Interface/VBoxContainer" method="_on_Close_pressed"]
-[connection signal="gui_input" from="Interface/VBoxContainer/Panel/Texture" to="Interface/VBoxContainer" method="_on_Texture_gui_input"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarLeft/Prev" to="." method="_on_Prev_pressed"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarLeft/Next" to="." method="_on_Next_pressed"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarLeft/Home" to="." method="_on_Home_pressed"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarRight/SaveLinkBtn" to="." method="_on_SaveLinkBtn_pressed"]
+[connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarRight/Close" to="." method="_on_Close_pressed"]
+[connection signal="gui_input" from="Interface/VBoxContainer/Panel/Texture" to="." method="_on_Texture_gui_input"]
 [connection signal="pressed" from="RenameLinkPanel/VBoxContainer/CenterContainer/ResourceButton" to="." method="_on_ResourceButton_pressed"]
