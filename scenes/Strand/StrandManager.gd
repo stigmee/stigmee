@@ -44,17 +44,6 @@ var placing_node : bool = false
 var save_path : String
 var is_open : bool = false
 
-func _ready():
-	$BrowserGUI/CEF.connect("save_link", self, "_on_CEF_save_link")
-	pass
-
-# ==============================================================================
-#
-# ==============================================================================
-func _on_CEF_save_link():
-	print("_on_CEF_save_link")
-	pass
-
 # ==============================================================================
 # "on init" event called by the SceneManager state machine.
 # ==============================================================================
@@ -109,17 +98,15 @@ func clear_nodes():
 	pass
 
 # ==============================================================================
-# FIXME
-#	if current_tab != null:
-#		current_url = current_tab.get_url()
-#	browser_close()
+#
 # ==============================================================================
 func save_link(name, url):
 	current_url = url
 	placing_node = true
 	current_name = name
 	Global.edit_mode = true
-	$Hint/HintAddResource.visible = true
+	$Hint.visible = true
+	$Menu.visible = true
 	pass
 
 # ==============================================================================
@@ -275,6 +262,7 @@ func _on_AddUrlFromStigmarkButton_pressed():
 # On $Strand/Menu GUI button pressed event
 # ==============================================================================
 func _on_OpenBrowser_pressed():
+	print("AAA")
 	$BrowserGUI.home()
 	pass
 
@@ -311,4 +299,11 @@ func _on_Stigmark_on_search(collections):
 # ==============================================================================
 func _process(_delta):
 	$Menu.visible = is_open and not $BrowserGUI.visible
+	pass
+
+# ==============================================================================
+# User clicked on saved URL
+# ==============================================================================
+func _on_BrowserGUI_save_link(name, url):
+	save_link(name, url)
 	pass

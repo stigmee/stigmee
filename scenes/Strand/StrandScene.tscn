@@ -195,6 +195,7 @@ rect_min_size = Vector2( 70, 40 )
 theme = ExtResource( 3 )
 text = "Fill strand with URLs associated with this keyword"
 
+[connection signal="save_link" from="BrowserGUI" to="." method="_on_BrowserGUI_save_link"]
 [connection signal="on_search" from="Stigmark" to="." method="_on_Stigmark_on_search"]
 [connection signal="pressed" from="Menu/HBoxContainer/OpenBrowser" to="." method="_on_OpenBrowser_pressed"]
 [connection signal="pressed" from="Menu/HBoxContainer/AddUrlFromStigmarkButton" to="." method="_on_AddUrlFromStigmarkButton_pressed"]

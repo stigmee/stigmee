@@ -20,7 +20,9 @@
 
 extends Spatial
 
-# SAVE/LOAD CONFIG
+# ==============================================================================
+# Pathes for se
+# ==============================================================================
 var ISLAND_SAVE = "user://saveisland.save"
 var STRAND_SAVE = "user://savestrand%d.save"
 

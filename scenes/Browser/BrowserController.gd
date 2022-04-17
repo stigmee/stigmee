@@ -34,6 +34,7 @@ signal save_link
 # ==============================================================================
 func _ready():
 	new_name_input = $RenameLinkPanel/VBoxContainer/HBoxContainer/NewNameInput
+	$CEF.visible = true
 	$RenameLinkPanel.visible = false
 	$Interface.visible = false
 	pass
@@ -126,13 +127,15 @@ func load_link(link : String, name : String):
 	$Interface/VBoxContainer/Panel/Texture.set_size(size)
 	# Create a new CEF browser as child node and load the URL
 	if current_tab == null:
+		print("create_browser")
 		current_tab = $CEF.create_browser(link, name, size.x, size.y)
 	else:
+		print("load_url")
 		current_tab.load_url(link)
 	# Make the CEF texture displayed by the node knowing how to do it
 	$Interface/VBoxContainer/Panel/Texture.texture = current_tab.get_texture()
-	$RenameLinkPanel.visible = false
 	$Interface.visible = true
+	$RenameLinkPanel.visible = false
 	pass
 
 # ==============================================================================
@@ -163,6 +166,7 @@ func next_node():
 # Load the home page URL
 # ==============================================================================
 func home():
+	print("HHHH")
 	load_link(Global.DEFAULT_SEARCH_ENGINE_URL, "home")
 	pass
 
@@ -214,6 +218,7 @@ func _on_SaveResourceButton_pressed():
 		print("_on_ResourceButton_pressed name null")
 		return
 	print("_on_ResourceButton_pressed emit")
-	emit_signal("save_link", name)
+	emit_signal("save_link", name, current_tab.get_url())
+	$Interface.visible = false
 	$RenameLinkPanel.visible = false
 	pass
