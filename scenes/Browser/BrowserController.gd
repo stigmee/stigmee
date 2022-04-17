@@ -122,14 +122,14 @@ func load_link(link : String, name : String):
 	current_tab = $CEF.create_browser(link, name, size.x, size.y)
 	# Make the CEF texture displayed by the node knowing how to do it
 	$Interface/VBoxContainer/Panel/Texture.texture = current_tab.get_texture()
-	$Interface.visible = true
+	self.visible = true
 	pass
 
 # ==============================================================================
 # Display the previously loaded page
 # ==============================================================================
 func browser_close():
-	$Interface.visible = false
+	self.visible = false
 	pass
 
 # ==============================================================================
@@ -174,19 +174,13 @@ func _on_Next_pressed():
 # ==============================================================================
 func home():
 	load_link(Global.DEFAULT_SEARCH_ENGINE_URL, "home")
+	visible = true
 	pass
 
 # ==============================================================================
 # GUI button event.
 # ==============================================================================
 func _on_Home_pressed():
-	home()
-	pass
-
-# ==============================================================================
-# Event whent the CEF is opened: load the home page.
-# ==============================================================================
-func _on_OpenBrowser_pressed():
 	home()
 	pass
 
@@ -207,5 +201,6 @@ func _on_ResourceButton_pressed():
 func _on_SaveLinkBtn_pressed():
 	new_name_input.text = ""
 	new_name_input.grab_focus()
+	self.visible = false
 	$RenameLinkPanel.visible = true
 	pass

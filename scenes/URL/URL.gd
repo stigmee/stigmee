@@ -20,65 +20,89 @@
 
 extends Spatial
 
+const hover_material = preload("res://scenes/URL/node_hover_material.tres")
+
 var node_id
 var siteName
-var label
-var icon
 var strand
-
 var offset
 var FLOATING_INVERSE_AMPLITUDE = 15 # high = low amplitude
 var PLUS_HOVER_SCALING = 1.6
-
-const hover_material = preload("res://scenes/URL/node_hover_material.tres")
-
 var rng
 
-var hovered = false
-
+# ==============================================================================
+#
+# ==============================================================================
 func _ready():
 	strand = find_parent("StrandScene")
-	label = find_node("Label")
-	icon = find_node("Icon")
 	rng = RandomNumberGenerator.new()
 	rng.randomize()
 	init_floating_sphere_movement()
+	pass
 
+# ==============================================================================
+#
+# ==============================================================================
+func _process(_delta):
+	floating_sphere_movement()
+	var dynamic_font_size = max(30 * (Global.zoom / 10), 15)
+	$Viewport/NodeText/Label.get_font("font").set_size(dynamic_font_size)
+	$Viewport/NodeText/Icon.visible = Global.edit_mode and siteName == null
+	pass
+
+# ==============================================================================
+#
+# ==============================================================================
 func init_floating_sphere_movement():
 	offset = rng.randf_range(-10.0, 10.0)
 	$Sphere.rotate_y(rng.randf_range(0, 360))
+	pass
 
+# ==============================================================================
+#
+# ==============================================================================
 func _on_Area_input_event(_camera, event, _pos, _normale, _shapeidx):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
 		strand.click_node(node_id)
+	pass
 
+# ==============================================================================
+#
+# ==============================================================================
 func floating_sphere_movement():
 	var ms = float(OS.get_ticks_msec()) / 1000
 	var cosMs = cos(ms + offset) / FLOATING_INVERSE_AMPLITUDE
 	var sinMs = sin(ms + offset) / FLOATING_INVERSE_AMPLITUDE
 	$Sphere.translation = Vector3(cosMs, cosMs + sinMs, sinMs)
+	pass
 
-func _process(_delta):
-	floating_sphere_movement()
-	var dynamic_font_size = max(30 * (Global.zoom / 10), 15)
-	label.get_font("font").set_size(dynamic_font_size)
-	icon.visible = Global.edit_mode and siteName == null
-
+# ==============================================================================
+#
+# ==============================================================================
 func set_data(id, _siteName):
 	node_id = id
 	siteName = _siteName
 	$Sphere.visible = siteName != null
 	if siteName:
-		label.text = siteName
+		$Viewport/NodeText/Label.text = siteName
+	pass
 
+# ==============================================================================
+#
+# ==============================================================================
 func _on_Area_mouse_entered():
 	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 	$Sphere.radius = 0.35
 	$Sphere.material_override = hover_material
-	$Viewport/NodeText/Icon.scale = $Viewport/NodeText/Icon.scale * PLUS_HOVER_SCALING
+	$Viewport/NodeText/Icon.scale *= PLUS_HOVER_SCALING
+	pass
 
+# ==============================================================================
+#
+# ==============================================================================
 func _on_Area_mouse_exited():
 	Input.set_default_cursor_shape(0)
 	$Sphere.radius = 0.25
 	$Sphere.material_override = null
-	$Viewport/NodeText/Icon.scale = $Viewport/NodeText/Icon.scale / PLUS_HOVER_SCALING
+	$Viewport/NodeText/Icon.scale /= PLUS_HOVER_SCALING
+	pass

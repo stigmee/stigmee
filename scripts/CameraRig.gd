@@ -78,6 +78,10 @@ func _ready():
 # SHIFT key pressed event and mouse scrolled event
 # ==============================================================================
 func _input(event):
+	# Stop controlling the camera when, for example, the CEF page is opened
+	if not Global.enable_orbit_camera:
+		return
+	
 	# Mouse "scrolled" event: modify the camera zoom
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_WHEEL_UP:
@@ -197,7 +201,7 @@ func track(object: Spatial):
 func _process(dt):
 	# Stop controlling the camera when, for example, the CEF page is opened
 	if not Global.enable_orbit_camera:
-		pass
+		return
 
 	# Is the camera tracking (following) the position of a 3D object inside the
 	# world ?

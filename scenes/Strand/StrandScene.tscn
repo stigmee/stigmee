@@ -57,6 +57,8 @@ shader_param/water_color = Vector3( 0, 0.1, 0.8 )
 [node name="Strand" type="Spatial"]
 script = ExtResource( 2 )
 
+[node name="BrowserGUI" parent="." instance=ExtResource( 5 )]
+
 [node name="Generator" type="Spatial" parent="."]
 script = ExtResource( 4 )
 
@@ -76,7 +78,8 @@ anchor_right = 0.5
 anchor_bottom = 1.0
 margin_left = -136.0
 margin_top = -104.0
-margin_right = 136.0
+margin_right = 376.0
+margin_bottom = -48.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Menu"]
 anchor_left = 0.5
@@ -102,7 +105,7 @@ margin_right = 144.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 10, 0 )
 
-[node name="StigmarkButton" type="Button" parent="Menu/HBoxContainer"]
+[node name="AddUrlFromStigmarkButton" type="Button" parent="Menu/HBoxContainer"]
 margin_left = 148.0
 margin_right = 481.0
 margin_bottom = 40.0
@@ -194,9 +197,7 @@ rect_min_size = Vector2( 70, 40 )
 theme = ExtResource( 3 )
 text = "Fill strand with URLs associated with this keyword"
 
-[node name="BrowserGUI" parent="." instance=ExtResource( 5 )]
-
 [connection signal="on_search" from="Stigmark" to="." method="_on_Stigmark_on_search"]
 [connection signal="pressed" from="Menu/HBoxContainer/OpenBrowser" to="." method="_on_OpenBrowser_pressed"]
-[connection signal="pressed" from="Menu/HBoxContainer/StigmarkButton" to="." method="_on_StigmarkButton_pressed"]
+[connection signal="pressed" from="Menu/HBoxContainer/AddUrlFromStigmarkButton" to="." method="_on_AddUrlFromStigmarkButton_pressed"]
 [connection signal="pressed" from="AutofillLinkPanel/VBoxContainer/CenterContainer/StigmarkSearch" to="." method="_on_StigmarkSearch_pressed"]

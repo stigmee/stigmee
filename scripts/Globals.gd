@@ -18,7 +18,7 @@
 ## along with this program.  If not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-extends Node
+extends Spatial
 
 # SAVE/LOAD CONFIG
 var ISLAND_SAVE = "user://saveisland.save"
@@ -28,9 +28,7 @@ var STRAND_SAVE = "user://savestrand%d.save"
 var DEFAULT_SEARCH_ENGINE_URL = "https://google.com"
 
 # GLOBALS
-
 var strand_id
-
 var enable_orbit_camera = true
 var zoom = 1
 var edit_mode = false

@@ -40,19 +40,14 @@ var current_url
 var current_name
 var placing_node : bool = false
 
-# ==============================================================================
-# ???
-# ==============================================================================
-var SAVE_PATH
-var requested_title = {}
-var is_open = false
+# The path of the file in where to save strand information
+var save_path : String
+var is_open : bool = false
 
 # ==============================================================================
 # "on init" event called by the SceneManager state machine.
 # ==============================================================================
 func load_scene():
-	visible = false
-	init_events()
 	$Generator.init()
 	pass
 
@@ -67,19 +62,21 @@ func set_visibility(state : bool):
 
 # ==============================================================================
 # "on entry" event called by the SceneManager state machine.
+# param[in] data the ID of the strand
 # ==============================================================================
 func open_scene(data):
 	is_open = true
-	var strand_id = data.strand_id
-	SAVE_PATH = Global.STRAND_SAVE % strand_id
+	save_path = Global.STRAND_SAVE % data.strand_id
 	Global.edit_mode = false
 	$AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text = ""
 	place_nodes($Generator.get_river())
 	load_nodes()
+	# FIXME I dunno how visibility works
 	set_visibility(true)
+	$BrowserGUI.visible = false
+	$Menu.visible = false
 	$Hint.visible = false
 	$AutofillLinkPanel.visible = false
-	$BrowserGUI.visible = false
 	pass
 
 # ==============================================================================
@@ -101,21 +98,13 @@ func clear_nodes():
 	pass
 
 # ==============================================================================
-# Connect signals of the browser GUI to functions
-# ==============================================================================
-func init_events():
-	var save_link_btn = find_node("SaveLinkBtn")
-	save_link_btn.connect("save_link", self, "save_link")
-	pass
-
-# ==============================================================================
-# 
-# ==============================================================================
-func save_link(name):
-	current_url = ""
+# FIXME
 #	if current_tab != null:
 #		current_url = current_tab.get_url()
 #	browser_close()
+# ==============================================================================
+func save_link(name, url):
+	current_url = url
 	placing_node = true
 	current_name = name
 	Global.edit_mode = true
@@ -216,7 +205,7 @@ func assign_link_to_node(url, id, name):
 # ==============================================================================
 func save_nodes():
 	var save_game = File.new()
-	save_game.open(SAVE_PATH, File.WRITE)
+	save_game.open(save_path, File.WRITE)
 	save_game.store_line(to_json(nodes_data))
 	save_game.close()
 	pass
@@ -226,9 +215,10 @@ func save_nodes():
 # ==============================================================================
 func load_nodes():
 	var save_game = File.new()
-	if not save_game.file_exists(SAVE_PATH):
+	if not save_game.file_exists(save_path):
+		print("Could not find file " + save_path)
 		return
-	save_game.open(SAVE_PATH, File.READ)
+	save_game.open(save_path, File.READ)
 	nodes_data = parse_json(save_game.get_line())
 	for key in nodes_data:
 		var data = nodes_data[key]
@@ -264,10 +254,17 @@ func click_node(node_id):
 	pass
 
 # ==============================================================================
-# ??? Which button ?
+# On $Strand/Menu GUI button pressed event
 # ==============================================================================
-func _on_StigmarkButton_pressed():
+func _on_AddUrlFromStigmarkButton_pressed():
 	$AutofillLinkPanel.visible = not $AutofillLinkPanel.visible
+	pass
+
+# ==============================================================================
+# On $Strand/Menu GUI button pressed event
+# ==============================================================================
+func _on_OpenBrowser_pressed():
+	$BrowserGUI.home()
 	pass
 
 # ==============================================================================
@@ -280,6 +277,7 @@ func _on_StigmarkSearch_pressed():
 	$Stigmark.search_async(keyword)
 	$AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text = ""
 	$AutofillLinkPanel.visible = false
+	## $Libs/CEF.
 	pass
 
 # ==============================================================================
@@ -300,5 +298,5 @@ func _on_Stigmark_on_search(collections):
 # browser is displayed.
 # ==============================================================================
 func _process(_delta):
-#	Global.enable_orbit_camera = $Interface.visible and not $AutofillLinkPanel.visible
+	$Menu.visible = is_open and not $BrowserGUI.visible
 	pass
