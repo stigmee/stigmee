@@ -88,9 +88,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = -144.0
 alignment = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="SaveLinkBtn" type="Button" parent="Interface/VBoxContainer/TopBar/TopBarRight"]
 margin_right = 100.0
@@ -198,7 +195,7 @@ margin_top = 34.0
 margin_right = 514.0
 margin_bottom = 74.0
 
-[node name="ResourceButton" type="Button" parent="RenameLinkPanel/VBoxContainer/CenterContainer"]
+[node name="SaveResourceButton" type="Button" parent="RenameLinkPanel/VBoxContainer/CenterContainer"]
 margin_left = 119.0
 margin_right = 394.0
 margin_bottom = 40.0
@@ -212,4 +209,4 @@ text = "Place Resource on the Strand"
 [connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarRight/SaveLinkBtn" to="." method="_on_SaveLinkBtn_pressed"]
 [connection signal="pressed" from="Interface/VBoxContainer/TopBar/TopBarRight/Close" to="." method="_on_Close_pressed"]
 [connection signal="gui_input" from="Interface/VBoxContainer/Panel/Texture" to="." method="_on_Texture_gui_input"]
-[connection signal="pressed" from="RenameLinkPanel/VBoxContainer/CenterContainer/ResourceButton" to="." method="_on_ResourceButton_pressed"]
+[connection signal="pressed" from="RenameLinkPanel/VBoxContainer/CenterContainer/SaveResourceButton" to="." method="_on_SaveResourceButton_pressed"]

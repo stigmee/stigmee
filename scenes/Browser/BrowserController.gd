@@ -20,10 +20,14 @@
 
 extends Control
 
+# Entry of the popup asking to save the current url on the strand scene
 var new_name_input
+# Memorize if the mouse was pressed
 var mouse_pressed : bool = false
 # Chromium Embedded Framework (CEF) BrowserView
 var current_tab = null
+#
+signal save_link
 
 # ==============================================================================
 # 
@@ -31,6 +35,7 @@ var current_tab = null
 func _ready():
 	new_name_input = $RenameLinkPanel/VBoxContainer/HBoxContainer/NewNameInput
 	$RenameLinkPanel.visible = false
+	$Interface.visible = false
 	pass
 
 # ==============================================================================
@@ -96,6 +101,7 @@ func browser_event(event):
 
 # ==============================================================================
 # Make the CEF browser reacts from mouse and keyboard events.
+# Callback triggred by the texture node in which web pages are displayed on.
 # ==============================================================================
 func _on_Texture_gui_input(event):
 	browser_event(event)
@@ -119,24 +125,22 @@ func load_link(link : String, name : String):
 	var size = $Interface/VBoxContainer/Panel.get_size()
 	$Interface/VBoxContainer/Panel/Texture.set_size(size)
 	# Create a new CEF browser as child node and load the URL
-	current_tab = $CEF.create_browser(link, name, size.x, size.y)
+	if current_tab == null:
+		current_tab = $CEF.create_browser(link, name, size.x, size.y)
+	else:
+		current_tab.load_url(link)
 	# Make the CEF texture displayed by the node knowing how to do it
 	$Interface/VBoxContainer/Panel/Texture.texture = current_tab.get_texture()
-	self.visible = true
+	$RenameLinkPanel.visible = false
+	$Interface.visible = true
 	pass
 
 # ==============================================================================
 # Display the previously loaded page
 # ==============================================================================
 func browser_close():
-	self.visible = false
-	pass
-
-# ==============================================================================
-# GUI button event.
-# ==============================================================================
-func _on_Close_pressed():
-	browser_close()
+	$RenameLinkPanel.visible = false
+	$Interface.visible = false
 	pass
 
 # ==============================================================================
@@ -148,13 +152,6 @@ func prev_node():
 	pass
 
 # ==============================================================================
-# GUI button event.
-# ==============================================================================
-func _on_Prev_pressed():
-	prev_node()
-	pass
-
-# ==============================================================================
 # Display the next loaded page
 # ==============================================================================
 func next_node():
@@ -163,44 +160,60 @@ func next_node():
 	pass
 
 # ==============================================================================
-# GUI button event.
+# Load the home page URL
+# ==============================================================================
+func home():
+	load_link(Global.DEFAULT_SEARCH_ENGINE_URL, "home")
+	pass
+
+# ==============================================================================
+# GUI TopBarLetf 'previous' button event. Ask to load the previous loaded page.
+# ==============================================================================
+func _on_Prev_pressed():
+	prev_node()
+	pass
+
+# ==============================================================================
+# GUI TopBarLetf 'next' button event. Ask to load the next loaded page.
 # ==============================================================================
 func _on_Next_pressed():
 	next_node()
 	pass
 
 # ==============================================================================
-# Load the home page URL
-# ==============================================================================
-func home():
-	load_link(Global.DEFAULT_SEARCH_ENGINE_URL, "home")
-	visible = true
-	pass
-
-# ==============================================================================
-# GUI button event.
+# GUI TopBarLetf 'home' button event. Ask to load the home page.
 # ==============================================================================
 func _on_Home_pressed():
 	home()
 	pass
 
 # ==============================================================================
-# GUI button event.
-# ==============================================================================
-func _on_ResourceButton_pressed():
-	var name = new_name_input.text
-	if name.length() == 0:
-		return
-	emit_signal("save_link", name)
-	$RenameLinkPanel.visible = false
-	pass
-
-# ==============================================================================
-# GUI button event.
+# GUI TopBarRight 'save link' button event. Save the current page into stigmark.
 # ==============================================================================
 func _on_SaveLinkBtn_pressed():
 	new_name_input.text = ""
 	new_name_input.grab_focus()
-	self.visible = false
+	$Interface.visible = false
 	$RenameLinkPanel.visible = true
+	pass
+
+# ==============================================================================
+# GUI TopBarRight 'close' button event. Close the CEF browser interface.
+# ==============================================================================
+func _on_Close_pressed():
+	browser_close()
+	pass
+
+# ==============================================================================
+# GUI RenameLinkPanel popup 'save the URL to a strand' button event.
+# ==============================================================================
+func _on_SaveResourceButton_pressed():
+	print("_on_ResourceButton_pressed")
+	var name = new_name_input.text
+	if name.length() == 0:
+		print("_on_ResourceButton_pressed name null")
+		return
+	print("_on_ResourceButton_pressed emit")
+	emit_signal("save_link", name)
+	$RenameLinkPanel.visible = false
 	pass

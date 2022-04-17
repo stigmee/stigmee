@@ -44,6 +44,17 @@ var placing_node : bool = false
 var save_path : String
 var is_open : bool = false
 
+func _ready():
+	$BrowserGUI/CEF.connect("save_link", self, "_on_CEF_save_link")
+	pass
+
+# ==============================================================================
+#
+# ==============================================================================
+func _on_CEF_save_link():
+	print("_on_CEF_save_link")
+	pass
+
 # ==============================================================================
 # "on init" event called by the SceneManager state machine.
 # ==============================================================================
@@ -277,6 +288,7 @@ func _on_StigmarkSearch_pressed():
 	$Stigmark.search_async(keyword)
 	$AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text = ""
 	$AutofillLinkPanel.visible = false
+	### FIXME
 	## $Libs/CEF.
 	pass
 

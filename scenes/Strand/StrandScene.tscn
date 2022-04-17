@@ -69,8 +69,6 @@ skeleton = NodePath("../..")
 [node name="Stigmark" type="Spatial" parent="."]
 script = ExtResource( 1 )
 
-[node name="HTTPRequest" type="HTTPRequest" parent="Stigmark"]
-
 [node name="Menu" type="Control" parent="."]
 anchor_left = 0.5
 anchor_top = 1.0
