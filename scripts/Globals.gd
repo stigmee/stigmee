@@ -21,16 +21,25 @@
 extends Spatial
 
 # ==============================================================================
-# Pathes for se
+# Pathes to save Stigmee files
+# The"user://" prefix points to a different directory on the user's device:
+#  - On mobile and consoles, this path is unique to the project.
+#  - On desktop, the engine stores user files in:
+#    - on Linux at ~/.local/share/godot/app_userdata/[project_name]
+#    - on macOS (since Catalina) at
+#      ~/Library/Application Support/Godot/app_userdata/[project_name]
+#    - on Windows at %APPDATA%\Godot\app_userdata\[project_name]
 # ==============================================================================
-var ISLAND_SAVE = "user://saveisland.save"
-var STRAND_SAVE = "user://savestrand%d.save"
+const ISLAND_SAVE = "user://saveisland.json"
+const STRAND_SAVE = "user://savestrand%d.json"
 
-# BROWSER CONFIG
-var DEFAULT_SEARCH_ENGINE_URL = "https://google.com"
+# ==============================================================================
+# Stigmee settings
+# ==============================================================================
+var DEFAULT_SEARCH_ENGINE_URL = "https://duckduckgo.com/"
 
-# GLOBALS
-var strand_id
+# ==============================================================================
+# GLOBALS FIXME to be removed
+# ==============================================================================
 var enable_orbit_camera = true
 var zoom = 1
-var edit_mode = false

@@ -29,7 +29,6 @@ var rename_link_text
 #
 # ==============================================================================
 func init():
-	var parent = get_parent()
 	rename_link_panel = $RenameLinkPanel
 	rename_link_text = $RenameLinkPanel/VBoxContainer/HBoxContainer/NewNameInput
 	assert(rename_link_panel != null)

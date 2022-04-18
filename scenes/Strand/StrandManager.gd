@@ -36,13 +36,14 @@ var nodes = []
 var physicalNodes = []
 var nodes_data = {}
 var current_node_id = 0
-var current_url
-var current_name
+var current_url : String = ""
+var current_name : String = ""
 var placing_node : bool = false
 
 # The path of the file in where to save strand information
 var save_path : String
 var is_open : bool = false
+var edit_mode : bool = false
 
 # ==============================================================================
 # "on init" event called by the SceneManager state machine.
@@ -59,6 +60,7 @@ func set_visibility(state : bool):
 	self.visible = state
 	for child in get_children():
 		child.visible = state
+	pass
 
 # ==============================================================================
 # "on entry" event called by the SceneManager state machine.
@@ -67,7 +69,7 @@ func set_visibility(state : bool):
 func open_scene(data):
 	is_open = true
 	save_path = Global.STRAND_SAVE % data.strand_id
-	Global.edit_mode = false
+	edit_mode = false
 	$AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text = ""
 	place_nodes($Generator.get_river())
 	load_nodes()
@@ -101,10 +103,11 @@ func clear_nodes():
 #
 # ==============================================================================
 func save_link(name, url):
+	print("save_link: name=" + name + ", url=" + url)
 	current_url = url
-	placing_node = true
 	current_name = name
-	Global.edit_mode = true
+	placing_node = true
+	edit_mode = true
 	$Hint.visible = true
 	$Menu.visible = true
 	pass
@@ -119,7 +122,7 @@ func get_next_empty_node_id():
 	return -1
 
 # ==============================================================================
-# 
+#
 # ==============================================================================
 func instanciate_node(x, y, z):
 	var node = NODE.instance()
@@ -129,7 +132,7 @@ func instanciate_node(x, y, z):
 	return node
 
 # ==============================================================================
-# 
+#
 # ==============================================================================
 func place_node(node, side):
 	var x = node.realPos.x
@@ -137,11 +140,12 @@ func place_node(node, side):
 	var z = node.realPos.z + side * node.radius * 3 + node.radius
 	var n = instanciate_node(x, y, z)
 	physicalNodes.append(n)
+	assert(physicalNodes.size() >= 1)
 	n.set_data(physicalNodes.size() - 1, null)
 	pass
 
 # ==============================================================================
-# 
+#
 # ==============================================================================
 func place_nodes(river_nodes):
 	var ratio = round(river_nodes.size() / NB_NODES)
@@ -228,26 +232,27 @@ func load_nodes():
 # Click on a moving sphere holding and URL
 # ==============================================================================
 func click_node(node_id):
+	print("click_node id: " + str(node_id) + ", url=" + current_url)
 	current_node_id = node_id
 	if placing_node:
 		assign_link_to_node(current_url, current_node_id, current_name)
 		placing_node = false
-		current_name = ""
 		$Hint/HintAddResource.visible = false
-		current_url = null
-		Global.edit_mode = false
 		request_html_title(current_node_id, current_url)
+		current_name = ""
+		current_url = ""
+		edit_mode = false
 		return
 	var url = Global.DEFAULT_SEARCH_ENGINE_URL
 	if nodes_data.has(str(node_id)):
 		url = nodes_data[str(node_id)].url
 	$BrowserGUI.load_link(url, "tab1") # FIXME constant name
-	var title_text = $BrowserGUI/Interface/VBoxContainer/TopBar/ColorRect/Title.text
+	var title = $BrowserGUI/Interface/VBoxContainer/TopBar/ColorRect/Title
 	if not "title" in nodes_data[str(node_id)]:
 		request_html_title(node_id, url)
-		title_text = ""
+		title.text = ""
 	else:
-		title_text = nodes_data[str(node_id)].title
+		title.text = nodes_data[str(node_id)].title
 	$BrowserGUI.visible = true
 	pass
 
@@ -262,7 +267,6 @@ func _on_AddUrlFromStigmarkButton_pressed():
 # On $Strand/Menu GUI button pressed event
 # ==============================================================================
 func _on_OpenBrowser_pressed():
-	print("AAA")
 	$BrowserGUI.home()
 	pass
 
@@ -276,8 +280,6 @@ func _on_StigmarkSearch_pressed():
 	$Stigmark.search_async(keyword)
 	$AutofillLinkPanel/VBoxContainer/HBoxContainer/Keyword.text = ""
 	$AutofillLinkPanel.visible = false
-	### FIXME
-	## $Libs/CEF.
 	pass
 
 # ==============================================================================
@@ -298,12 +300,5 @@ func _on_Stigmark_on_search(collections):
 # browser is displayed.
 # ==============================================================================
 func _process(_delta):
-	$Menu.visible = is_open and not $BrowserGUI.visible
-	pass
-
-# ==============================================================================
-# User clicked on saved URL
-# ==============================================================================
-func _on_BrowserGUI_save_link(name, url):
-	save_link(name, url)
+	$Menu.visible = is_open and not $BrowserGUI/Interface.visible
 	pass

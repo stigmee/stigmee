@@ -46,7 +46,7 @@ func _process(_delta):
 	_floating_sphere_movement()
 	var dynamic_font_size = max(30 * (Global.zoom / 10), 15)
 	$Viewport/NodeText/Label.get_font("font").set_size(dynamic_font_size)
-	$Viewport/NodeText/Icon.visible = (Global.edit_mode and site_name == null)
+	$Viewport/NodeText/Icon.visible = (strand_scene.edit_mode and site_name == null)
 	pass
 
 # ==============================================================================

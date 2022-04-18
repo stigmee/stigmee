@@ -33,8 +33,6 @@ const MAP_PERIOD = 100 # size of mountains
 const MAP_PERSISTENCE = 0.5 # 0.1 = smooth, 1 = not smooth
 const ISLAND_SIZE = 200
 
-var noise
-
 var st
 var vertexes = []
 var m

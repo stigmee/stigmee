@@ -26,11 +26,9 @@ var new_name_input
 var mouse_pressed : bool = false
 # Chromium Embedded Framework (CEF) BrowserView
 var current_tab = null
-#
-signal save_link
 
 # ==============================================================================
-# 
+#
 # ==============================================================================
 func _ready():
 	new_name_input = $RenameLinkPanel/VBoxContainer/HBoxContainer/NewNameInput
@@ -44,7 +42,7 @@ func _ready():
 # ==============================================================================
 func _on_Spatial_tree_exiting():
 	$CEF.shutdown()
-	print("CEF stopped")
+	print("CEF shutdown")
 	pass
 
 # ==============================================================================
@@ -133,6 +131,7 @@ func load_link(link : String, name : String):
 		print("load_url")
 		current_tab.load_url(link)
 	# Make the CEF texture displayed by the node knowing how to do it
+	visible = true
 	$Interface/VBoxContainer/Panel/Texture.texture = current_tab.get_texture()
 	$Interface.visible = true
 	$RenameLinkPanel.visible = false
@@ -166,7 +165,6 @@ func next_node():
 # Load the home page URL
 # ==============================================================================
 func home():
-	print("HHHH")
 	load_link(Global.DEFAULT_SEARCH_ENGINE_URL, "home")
 	pass
 
@@ -212,13 +210,12 @@ func _on_Close_pressed():
 # GUI RenameLinkPanel popup 'save the URL to a strand' button event.
 # ==============================================================================
 func _on_SaveResourceButton_pressed():
-	print("_on_ResourceButton_pressed")
 	var name = new_name_input.text
 	if name.length() == 0:
-		print("_on_ResourceButton_pressed name null")
 		return
-	print("_on_ResourceButton_pressed emit")
-	emit_signal("save_link", name, current_tab.get_url())
+	var strand_scene = find_parent("StrandScene")
+	assert(strand_scene != null)
+	strand_scene.save_link(name, current_tab.get_url())
 	$Interface.visible = false
 	$RenameLinkPanel.visible = false
 	pass
