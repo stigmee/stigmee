@@ -68,7 +68,7 @@ material = SubResource( 4 )
 
 [node name="GeneratedIsland" type="MeshInstance" parent="."]
 material_override = SubResource( 3 )
-skeleton = NodePath("../../../Sun")
+skeleton = NodePath("../..")
 
 [node name="Interface" type="Control" parent="."]
 anchor_right = 1.0
