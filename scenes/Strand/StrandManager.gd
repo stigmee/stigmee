@@ -165,10 +165,8 @@ func place_nodes(river_nodes):
 # Parse the HTML document looking for the title field and display the title
 # ==============================================================================
 func request_html_title(id, url):
-	var newHttp = HTTPRequest.new()
-	add_child(newHttp)
-	newHttp.request(url)
-	var response = yield (newHttp, "request_completed")
+	$Node/HTTPRequest.request(url) # Node because HTTPRequest cannot be hiden
+	var response = yield ($Node/HTTPRequest, "request_completed")
 	var body = response[3]
 	if not body:
 		assign_link_to_node(url, id, "")
@@ -182,7 +180,6 @@ func request_html_title(id, url):
 	if nodes_data[str(id)].custom_name == FETCHING_TITLE_PLACEHOLDER:
 		assign_link_to_node(url, id, title.substr(0, 15))
 	$BrowserGUI/Interface/VBoxContainer/TopBar/ColorRect/Title.text = title
-	remove_child(newHttp)
 	pass
 
 # ==============================================================================

@@ -57,6 +57,10 @@ shader_param/water_color = Vector3( 0, 0.1, 0.8 )
 [node name="Strand" type="Spatial"]
 script = ExtResource( 2 )
 
+[node name="Node" type="Spatial" parent="."]
+
+[node name="HTTPRequest" type="HTTPRequest" parent="Node"]
+
 [node name="BrowserGUI" parent="." instance=ExtResource( 5 )]
 
 [node name="Generator" type="Spatial" parent="."]
