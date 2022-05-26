@@ -7,12 +7,12 @@ reloadable=true
 
 [entry]
 
-X11.64="res://build/libstigmark.so"
-Windows.64="res://build/libstigmark.dll"
-OSX.64="res://build/libstigmark.dylib"
+X11.64="res://build/libgdstigmark.so"
+Windows.64="res://build/libgdstigmark.dll"
+OSX.64="res://build/libgdstigmark.dylib"
 
 [dependencies]
 
-X11.64=[  ]
-Windows.64=[  ]
-OSX.64=[  ]
+X11.64=[ "res://build/libstigmark_client.so" ]
+Windows.64=[ "res://build/libstigmark_client.dll" ]
+OSX.64=[ "res://build/libstigmark_client.dylib" ]
