@@ -71,9 +71,9 @@ func browser_event(event):
 		return
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_WHEEL_UP:
-			current_tab.on_mouse_wheel(5)
+			current_tab.on_mouse_wheel_vertical(5)
 		elif event.button_index == BUTTON_WHEEL_DOWN:
-			current_tab.on_mouse_wheel(-5)
+			current_tab.on_mouse_wheel_vertical(-5)
 		elif event.button_index == BUTTON_LEFT:
 			mouse_pressed = event.pressed
 			if event.pressed == true:
